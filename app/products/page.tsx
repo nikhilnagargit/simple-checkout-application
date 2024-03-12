@@ -2,18 +2,48 @@ import React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { DataTable, Payment, columns } from "@/components/data-table";
+import { DataTable, Product, columns } from "@/components/data-table";
+import Link from "next/link";
 
-async function getData(): Promise<Payment[]> {
+async function getData(): Promise<Product[]> {
   // Fetch data from your API here.
   return [
     {
       id: "728ed52f",
-      amount: 100,
-      status: "pending",
-      email: "m@example.com",
+      name: "Chair",
+      status: "Active",
+      price: 20,
+      category: "Home",
+      type: "Physical",
+      quantity: 23,
+      description:
+        "The awsome chair to get comfortable lorum ipsum in the best random text on behalf has the finest coffee and sense logic.",
+      created: "23/04/2024",
     },
-    // ...
+    {
+      id: "12345d52f",
+      name: "Chair",
+      status: "Active",
+      price: 20,
+      category: "Home",
+      type: "Physical",
+      quantity: 23,
+      description:
+        "The awsome chair to get comfortable lorum ipsum in the best random text on behalf has the finest coffee and sense logic.",
+      created: "23/04/2024",
+    },
+    {
+      id: "66726552f",
+      name: "Chair",
+      status: "Active",
+      price: 20,
+      category: "Home",
+      type: "Physical",
+      quantity: 23,
+      description:
+        "The awsome chair to get comfortable lorum ipsum in the best random text on behalf has the finest coffee and sense logic.",
+      created: "23/04/2024",
+    },
   ];
 }
 
@@ -23,10 +53,12 @@ const page = async () => {
     <div className="flex flex-col space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Products</h2>
-        <Button size={"sm"} variant={"default"}>
-          <Plus size={20}></Plus>
-          Add Product
-        </Button>
+        <Link href={"products/create"}>
+          <Button size={"sm"} variant={"default"}>
+            <Plus size={20}></Plus>
+            Add Product
+          </Button>
+        </Link>
       </div>
       <div className="container mx-auto ">
         <DataTable columns={columns} data={data} />
