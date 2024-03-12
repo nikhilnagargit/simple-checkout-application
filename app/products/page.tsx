@@ -1,17 +1,24 @@
 import React from "react";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { DataTable, Payment, columns } from "@/components/data-table";
 
-const page = () => {
+async function getData(): Promise<Payment[]> {
+  // Fetch data from your API here.
+  return [
+    {
+      id: "728ed52f",
+      amount: 100,
+      status: "pending",
+      email: "m@example.com",
+    },
+    // ...
+  ];
+}
+
+const page = async () => {
+  const data = await getData();
   return (
     <div className="flex flex-col space-y-4">
       <div className="flex items-center justify-between">
@@ -20,6 +27,9 @@ const page = () => {
           <Plus size={20}></Plus>
           Add Product
         </Button>
+      </div>
+      <div className="container mx-auto ">
+        <DataTable columns={columns} data={data} />
       </div>
     </div>
   );
