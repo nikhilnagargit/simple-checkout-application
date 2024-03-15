@@ -2,7 +2,7 @@ import React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { DataTable, Product, columns } from "@/components/data-table";
+import { ProductTable, Product, columns } from "@/components/product-table";
 import Link from "next/link";
 
 async function getData(): Promise<Product[]> {
@@ -51,7 +51,7 @@ const page = async () => {
   const data = await getData();
   return (
     <div className="flex flex-col space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between ">
         <h2 className="text-3xl font-bold tracking-tight">Products</h2>
         <Link href={"products/create"}>
           <Button size={"sm"} variant={"default"}>
@@ -60,8 +60,8 @@ const page = async () => {
           </Button>
         </Link>
       </div>
-      <div className="container mx-auto ">
-        <DataTable columns={columns} data={data} />
+      <div className="w-full mx-auto">
+        <ProductTable columns={columns} data={data} />
       </div>
     </div>
   );

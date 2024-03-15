@@ -16,8 +16,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Copy, Eye, MoreVertical, Pencil, Trash } from "lucide-react";
-
+import { Copy, Eye, MoreVertical, Pencil, ShipIcon, Trash } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -30,56 +30,55 @@ import {
 import Link from "next/link";
 
 // define the types
-export type Product = {
+
+export type Range = {
+  from: number;
+  to: number;
+  amount: number;
+};
+export type ShippingMethod = {
   id: string;
   name: string;
-  category: string;
-  type: "Digital" | "Physical";
-  price: number;
-  quantity: number;
-  description: string;
+  ranges: Range[];
+};
+export type ShippingZone = {
+  id: string;
+  name: string;
+  countries: string[];
   created: string;
   status: "Active" | "Inactive";
+  method: ShippingMethod[];
 };
 
 // set the columm definition
-export const columns: ColumnDef<Product>[] = [
+export const columns: ColumnDef<ShippingZone>[] = [
   {
     accessorKey: "name",
-    header: "Product",
+    header: "ShippingZone",
     cell: ({ row }) => {
-      const product = row.original;
+      const shipping_zone = row.original;
       return (
-        <Link href={"/products/" + product.id}>
-          <div className="">{product.name}</div>
+        <Link
+          href={"/shipping/" + shipping_zone.id}
+          className="flex gap-2 items-center">
+          <div className="">{shipping_zone.name}</div>
         </Link>
       );
     },
-  },
-  {
-    accessorKey: "price",
-    header: () => <div className="">Price</div>,
-    cell: ({ row }) => {
-      const price = parseFloat(row.getValue("price"));
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(price);
-      return <div className="">{formatted}</div>;
-    },
-  },
-  {
-    accessorKey: "created",
-    header: "Created",
   },
   {
     accessorKey: "status",
     header: "Status",
   },
   {
+    accessorKey: "created",
+    header: "Created On",
+  },
+
+  {
     id: "actions",
     cell: ({ row }) => {
-      const product = row.original;
+      const shipping_zone = row.original;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -90,23 +89,19 @@ export const columns: ColumnDef<Product>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              className="flex gap-1 items-center"
-              onClick={() => navigator.clipboard.writeText(product.id)}>
-              <Copy size={15} />
-              Copy product ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <Link href={`/products/${product.id}`}>
+
+            <Link href={`/shipping/${shipping_zone.id}`}>
               <DropdownMenuItem className="flex gap-1 items-center">
                 <Eye size={15} />
                 View
               </DropdownMenuItem>
             </Link>
-            <DropdownMenuItem className="flex gap-1 items-center">
-              <Pencil size={15} />
-              Edit
-            </DropdownMenuItem>
+            <Link href={`/shipping/edit/${shipping_zone.id}`}>
+              <DropdownMenuItem className="flex gap-1 items-center">
+                <Pencil size={15} />
+                Edit
+              </DropdownMenuItem>
+            </Link>
             <DropdownMenuItem className="flex gap-1 items-center text-destructive">
               <Trash size={15} />
               Delete
@@ -118,15 +113,15 @@ export const columns: ColumnDef<Product>[] = [
   },
 ];
 
-interface DataTableProps<TData, TValue> {
+interface ShippingZoneTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function ShippingZoneTable<TData, TValue>({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+}: ShippingZoneTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
