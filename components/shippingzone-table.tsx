@@ -47,7 +47,7 @@ export type ShippingZone = {
   countries: string[];
   created: string;
   status: "Active" | "Inactive";
-  method: ShippingMethod[];
+  shippingMethods: ShippingMethod[];
 };
 
 // set the columm definition
@@ -87,8 +87,8 @@ export const columns: ColumnDef<ShippingZone>[] = [
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="text-muted-foreground">
+            {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
 
             <Link href={`/shipping/${shipping_zone.id}`}>
               <DropdownMenuItem className="flex gap-1 items-center">

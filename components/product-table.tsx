@@ -95,8 +95,8 @@ export const columns: ColumnDef<Product>[] = [
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="text-muted-foreground">
+            {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
             <DropdownMenuItem
               className="flex gap-1 items-center"
               onClick={() => navigator.clipboard.writeText(product.id)}>

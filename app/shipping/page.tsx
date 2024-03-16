@@ -18,7 +18,7 @@ async function getData(): Promise<ShippingZone[]> {
       countries: ["India", "Japan", "Russia"],
       status: "Active",
       created: "23/12/2023",
-      method: [
+      shippingMethods: [
         {
           id: "123",
           name: "DHL Express",
@@ -32,7 +32,7 @@ async function getData(): Promise<ShippingZone[]> {
       countries: ["India", "Japan", "Russia"],
       status: "Active",
       created: "23/12/2023",
-      method: [
+      shippingMethods: [
         {
           id: "123",
           name: "DHL Express",
@@ -46,7 +46,7 @@ async function getData(): Promise<ShippingZone[]> {
       countries: ["India", "Japan", "Russia"],
       status: "Active",
       created: "23/12/2023",
-      method: [
+      shippingMethods: [
         {
           id: "123",
           name: "DHL Express",
@@ -63,7 +63,7 @@ const page = async () => {
     <div className="flex flex-col space-y-4">
       <div className="flex items-center justify-between ">
         <h2 className="text-3xl font-bold tracking-tight">Shipping Zones</h2>
-        <Link href={"products/create"}>
+        <Link href={"shipping/create"}>
           <Button size={"sm"} variant={"default"}>
             <Plus size={20}></Plus>
             Create New Zone
