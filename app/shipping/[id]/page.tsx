@@ -1,25 +1,17 @@
-import ShippingZoneForm from "@/components/shippingzone-form";
-
 import React from "react";
 
-const page = ({ params }: { params: { id: string } }) => {
-  return (
-    <>
-      <ShippingZoneForm
-        editMode={true}
-        defaultValues={{
-          name: "Asian Countries",
-          countries: ["India", "Japan", "Russia"],
+import ShippingZoneForm from "@/components/shippingzone-form";
 
-          shippingMethods: [
-            {
-              name: "DHL Express",
-              ranges: [{ from: 100, to: 400, amount: 34 }],
-            },
-          ],
-        }}
-      />
-    </>
+const page = () => {
+  return (
+    <div className="flex flex-col space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold tracking-tight">
+          Create New Shipping Zone
+        </h2>
+      </div>
+      <ShippingZoneForm editMode={true} />
+    </div>
   );
 };
 

@@ -1,15 +1,16 @@
 import React from "react";
 
 import ProductForm, { ProductFormValues } from "@/components/product-form";
+import ShippingZoneForm from "@/components/shippingzone-form";
 // This can come from database or API.
 const defaultValues: Partial<ProductFormValues> = {
-  name: "Laptop",
-  description: "best laptop lorum inpsdifhj dfo sdokfnosdfo",
-  category: "Electronics",
+  name: "",
+  description: "",
+  category: "",
   type: "digital",
-  weight: 340,
-  price: 230,
-  quantity: 430,
+  weight: 0,
+  price: 0,
+  quantity: 0,
   image: "",
 };
 
@@ -17,9 +18,11 @@ const page = () => {
   return (
     <div className="flex flex-col space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Edit Product</h2>
+        <h2 className="text-3xl font-bold tracking-tight">
+          Create New Shipping Zone
+        </h2>
       </div>
-      <ProductForm editMode={true} defaultValues={defaultValues} />
+      <ShippingZoneForm editMode={true} />
     </div>
   );
 };
