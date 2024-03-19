@@ -237,7 +237,7 @@ const ProductForm = ({ editMode, defaultValues }: ProductFormProps) => {
             />
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 col-span-1">
             <FormField
               control={form.control}
               disabled={!editMode}

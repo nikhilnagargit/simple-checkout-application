@@ -163,6 +163,7 @@ export default function ShippingZoneForm({ editMode }: { editMode: boolean }) {
                           <FormControl>
                             <Input
                               {...field}
+                              placeholder="Name"
                               className="border-x-0 col-span-6 border-t-0 focus-visible:ring-transparent focus-visible:border-b-primary rounded-none"
                             />
                           </FormControl>
