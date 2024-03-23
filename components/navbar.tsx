@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/popover";
 
 function Navbar() {
+  console.log("navbar rendered");
   return (
     <div className="flex h-12 items-center justify-end px-8 border-b gap-6 z-40 ml-[270px] bg-gradient-to-r from-slate-50 via-blue-100 to-slate-50">
       <Popover>

@@ -63,15 +63,17 @@ interface ProductFormProps {
   editMode: boolean;
   defaultValues: Partial<ProductFormValues>;
 }
+let count = 0;
 
 const ProductForm = ({ editMode, defaultValues }: ProductFormProps) => {
   // define the toast component
+  console.log("Product form rerendered", count++);
   const { toast } = useToast();
   const router = useRouter();
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues,
-    mode: "onChange",
+    mode: "onSubmit",
   });
 
   function onSubmit(data: ProductFormValues) {

@@ -48,7 +48,7 @@ const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
 
   const form = useForm<CheckoutLinkFormValues>({
     resolver: zodResolver(checkoutLinkFormSchema),
-    mode: "onChange",
+    mode: "onSubmit",
     defaultValues: { quantity: 1, product_id: productId },
   });
 

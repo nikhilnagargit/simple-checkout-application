@@ -87,12 +87,14 @@ const defaultValues: Partial<ShippingZoneFormValues> = {
   ],
 };
 
+let count = 0;
 export default function ShippingZoneForm({ editMode }: { editMode: boolean }) {
   const router = useRouter();
+  console.log("Shipping zone form rendered.", count++);
   const form = useForm<ShippingZoneFormValues>({
     resolver: zodResolver(shippingZoneFormSchema),
     defaultValues,
-    mode: "onChange",
+    mode: "onSubmit",
   });
 
   const { fields, append, remove } = useFieldArray({
