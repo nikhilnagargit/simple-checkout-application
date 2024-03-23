@@ -6,29 +6,61 @@ import { X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import { Command as CommandPrimitive } from "cmdk";
-import { count } from "console";
+
 import { useEffect } from "react";
 
-// List of all countries
-const AllCountries = [
-  "India",
-  "Russia",
-  "USA",
-  "China",
-  "Japan",
-  "Egypt",
-  "Jordan",
-  "Greece",
-  "Guatemala",
-  "Israel",
+// List of categorized countries
+interface RegionType {
+  name: string;
+  countries: string[];
+}
+
+const Regions: RegionType[] = [
+  {
+    name: "Asia",
+    countries: ["India", "China", "Japan", "Russia", "Afganistan"],
+  },
+  {
+    name: "Europe",
+    countries: [
+      "Greece",
+      "England",
+      "Scottland",
+      "Viena",
+      "Purtogal",
+      "Denmark",
+      "Finland",
+    ],
+  },
+  {
+    name: "North America",
+    countries: ["Guatemala", "Canada", "USA", "Mexico"],
+  },
+  {
+    name: "Africa",
+    countries: ["South Africa", "Indonesia", "Somalia"],
+  },
 ];
+
+// List of all countries
+function getAllcountries() {
+  let countries: string[] = [];
+  Regions.forEach((region) => {
+    countries = [...countries, ...region.countries];
+  });
+  return countries;
+}
+
+const AllCountries = getAllcountries();
 
 export function FancyMultiSelect({
   selectedItems,
   onChangeSelection,
+  disabled,
 }: {
   selectedItems: string[];
   onChangeSelection: (...event: any[]) => void;
+  disabled: boolean;
 }) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [open, setOpen] = React.useState(false);
@@ -79,6 +111,7 @@ export function FancyMultiSelect({
               <Badge key={country} variant="secondary">
                 {country}
                 <button
+                  disabled={disabled}
                   className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
@@ -90,13 +123,16 @@ export function FancyMultiSelect({
                     e.stopPropagation();
                   }}
                   onClick={() => handleUnselect(country)}>
-                  <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                  {!disabled && (
+                    <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                  )}
                 </button>
               </Badge>
             );
           })}
           {/* Avoid having the "Search" Icon */}
           <CommandPrimitive.Input
+            disabled={disabled}
             ref={inputRef}
             value={inputValue}
             onValueChange={setInputValue}
@@ -110,10 +146,57 @@ export function FancyMultiSelect({
       <div className="relative mt-2">
         {open && selectables.length > 0 ? (
           <div className="absolute w-full z-10 top-0 rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in">
-            <CommandGroup className="h-full overflow-auto">
-              {selectables.map((country) => {
+            <div className="overflow-auto h-[200px] border border-primary">
+              {Regions.map((region) => {
+                return (
+                  <CommandGroup key={region.name}>
+                    {region.countries.some((country) =>
+                      selectables.includes(country)
+                    ) && (
+                      <CommandItem
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        onSelect={(value) => {
+                          setInputValue("");
+                          setSelected((prev) => {
+                            // only keeping unique values in state
+                            const newState = [...prev, ...region.countries];
+                            const set = new Set(newState);
+                            const newArr = Array.from(set);
+                            return newArr;
+                          });
+                        }}
+                        className="font-semibold text-primary">
+                        {region.name}
+                      </CommandItem>
+                    )}
+                    {region.countries.map(
+                      (country) =>
+                        selectables.includes(country) && (
+                          <CommandItem
+                            className="ml-2 cursor-pointer"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                            onSelect={(value) => {
+                              setInputValue("");
+                              setSelected((prev) => [...prev, country]);
+                            }}
+                            key={country}>
+                            {country}
+                          </CommandItem>
+                        )
+                    )}
+                  </CommandGroup>
+                );
+              })}
+              {/* {selectables.map((country) => {
                 return (
                   <CommandItem
+                    disabled={disabled}
                     key={country}
                     onMouseDown={(e) => {
                       e.preventDefault();
@@ -127,8 +210,8 @@ export function FancyMultiSelect({
                     {country}
                   </CommandItem>
                 );
-              })}
-            </CommandGroup>
+              })} */}
+            </div>
           </div>
         ) : null}
       </div>

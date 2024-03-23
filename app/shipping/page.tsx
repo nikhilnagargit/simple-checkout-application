@@ -9,56 +9,52 @@ import {
 } from "@/components/shippingzone-table";
 import Link from "next/link";
 
-async function getData(): Promise<ShippingZone[]> {
-  // Fetch data from your API here.
-  return [
-    {
-      id: "61234554",
-      name: "Asian Countries",
-      countries: ["India", "Japan", "Russia"],
-      status: "Active",
-      created: "23/12/2023",
-      shippingMethods: [
-        {
-          id: "123",
-          name: "DHL Express",
-          ranges: [{ from: 100, to: 400, amount: 34 }],
-        },
-      ],
-    },
-    {
-      id: "934543554",
-      name: "Asian Countries",
-      countries: ["India", "Japan", "Russia"],
-      status: "Active",
-      created: "23/12/2023",
-      shippingMethods: [
-        {
-          id: "123",
-          name: "DHL Express",
-          ranges: [{ from: 100, to: 400, amount: 34 }],
-        },
-      ],
-    },
-    {
-      id: "734552254",
-      name: "Asian Countries",
-      countries: ["India", "Japan", "Russia"],
-      status: "Active",
-      created: "23/12/2023",
-      shippingMethods: [
-        {
-          id: "123",
-          name: "DHL Express",
-          ranges: [{ from: 100, to: 400, amount: 34 }],
-        },
-      ],
-    },
-  ];
-}
+const data: ShippingZone[] = [
+  {
+    id: "61234554",
+    name: "Asian Countries",
+    countries: ["India", "Japan", "Russia"],
+    status: "Active",
+    created: "23/12/2023",
+    shippingMethods: [
+      {
+        id: "123",
+        name: "DHL Express",
+        ranges: [{ from: 100, to: 400, amount: 34 }],
+      },
+    ],
+  },
+  {
+    id: "934543554",
+    name: "Asian Countries",
+    countries: ["India", "Japan", "Russia"],
+    status: "Active",
+    created: "23/12/2023",
+    shippingMethods: [
+      {
+        id: "123",
+        name: "DHL Express",
+        ranges: [{ from: 100, to: 400, amount: 34 }],
+      },
+    ],
+  },
+  {
+    id: "734552254",
+    name: "Asian Countries",
+    countries: ["India", "Japan", "Russia"],
+    status: "Active",
+    created: "23/12/2023",
+    shippingMethods: [
+      {
+        id: "123",
+        name: "DHL Express",
+        ranges: [{ from: 100, to: 400, amount: 34 }],
+      },
+    ],
+  },
+];
 
-const page = async () => {
-  const data = await getData();
+const page = () => {
   return (
     <div className="flex flex-col space-y-4">
       <div className="flex items-center justify-between ">

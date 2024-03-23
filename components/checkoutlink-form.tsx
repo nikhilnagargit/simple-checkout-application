@@ -38,9 +38,10 @@ export type CheckoutLinkFormValues = z.infer<typeof checkoutLinkFormSchema>;
 
 interface CheckoutLinkFormProps {
   editMode: boolean;
+  productId?: string;
 }
 
-const CheckoutLinkForm = ({ editMode }: CheckoutLinkFormProps) => {
+const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
   // define the toast component
   const { toast } = useToast();
   const [checkoutlink, setCheckoutLink] = useState<string>("");
@@ -48,7 +49,7 @@ const CheckoutLinkForm = ({ editMode }: CheckoutLinkFormProps) => {
   const form = useForm<CheckoutLinkFormValues>({
     resolver: zodResolver(checkoutLinkFormSchema),
     mode: "onChange",
-    defaultValues: { quantity: 1 },
+    defaultValues: { quantity: 1, product_id: productId },
   });
 
   function onSubmit(data: CheckoutLinkFormValues) {
@@ -91,10 +92,8 @@ const CheckoutLinkForm = ({ editMode }: CheckoutLinkFormProps) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="fjd23344hntf">
-                        Customized Lamp
-                      </SelectItem>
-                      <SelectItem value="sdf243dfdfg">Laptop</SelectItem>
+                      <SelectItem value="728ed52f">Chair</SelectItem>
+                      <SelectItem value="12345d52f">Laptop</SelectItem>
                       <SelectItem value="32r23ntttr3">
                         Think and Learn Book
                       </SelectItem>
@@ -230,12 +229,9 @@ const CheckoutLinkForm = ({ editMode }: CheckoutLinkFormProps) => {
                     <div className="text-muted-foreground w-[200px] h-[200px] border flex flex-col items-center justify-center relative">
                       <Image
                         alt="img"
-                        layout="fill"
-                        objectFit="contain"
+                        fill={true}
+                        sizes="w-full h-full"
                         src={"/images/laptop.jpg"}></Image>
-                      {/* <CloudUpload size={50} strokeWidth={1} /> */}
-                      {/* <p>Upload Image</p> */}
-                      {/* <Input type="file" {...field}/> */}
                     </div>
                   </FormControl>
                   <FormMessage />

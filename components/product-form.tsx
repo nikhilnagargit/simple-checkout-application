@@ -27,6 +27,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import { CloudUpload } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const productFormSchema = z.object({
   name: z
@@ -66,7 +67,7 @@ interface ProductFormProps {
 const ProductForm = ({ editMode, defaultValues }: ProductFormProps) => {
   // define the toast component
   const { toast } = useToast();
-
+  const router = useRouter();
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues,
@@ -83,6 +84,7 @@ const ProductForm = ({ editMode, defaultValues }: ProductFormProps) => {
         </pre>
       ),
     });
+    router.back();
   }
 
   return (
@@ -258,9 +260,11 @@ const ProductForm = ({ editMode, defaultValues }: ProductFormProps) => {
             />
           </div>
         </div>
-        <Button type="submit" disabled={!editMode}>
-          Save Product
-        </Button>
+        {editMode && (
+          <Button type="submit" disabled={!editMode}>
+            Save Product
+          </Button>
+        )}
       </form>
     </Form>
   );

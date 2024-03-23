@@ -1,25 +1,16 @@
 import React from "react";
 
-import ProductForm, { ProductFormValues } from "@/components/product-form";
 import ShippingZoneForm from "@/components/shippingzone-form";
-// This can come from database or API.
-const defaultValues: Partial<ProductFormValues> = {
-  name: "",
-  description: "",
-  category: "",
-  type: "digital",
-  weight: 0,
-  price: 0,
-  quantity: 0,
-  image: "",
-};
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Pencil, Trash } from "lucide-react";
 
-const page = () => {
+const page = ({ params }: { params: { id: string } }) => {
   return (
     <div className="flex flex-col space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">
-          Create New Shipping Zone
+          Edit Shipping Zone
         </h2>
       </div>
       <ShippingZoneForm editMode={true} />

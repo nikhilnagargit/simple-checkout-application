@@ -96,7 +96,7 @@ export const columns: ColumnDef<ShippingZone>[] = [
                 View
               </DropdownMenuItem>
             </Link>
-            <Link href={`/shipping/edit/${shipping_zone.id}`}>
+            <Link href={`/shipping/${shipping_zone.id}/edit`}>
               <DropdownMenuItem className="flex gap-1 items-center">
                 <Pencil size={15} />
                 Edit

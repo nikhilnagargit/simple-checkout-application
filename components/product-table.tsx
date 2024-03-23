@@ -6,6 +6,7 @@ import {
   getCoreRowModel,
   useReactTable,
   getPaginationRowModel,
+  RowSelection,
 } from "@tanstack/react-table";
 
 import {
@@ -28,6 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 // define the types
 export type Product = {
@@ -88,40 +90,49 @@ export const columns: ColumnDef<Product>[] = [
     cell: ({ row }) => {
       const product = row.original;
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="text-muted-foreground">
-            {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
-            <DropdownMenuItem
-              className="flex gap-1 items-center"
-              onClick={() => navigator.clipboard.writeText(product.id)}>
-              <Copy size={15} />
-              Copy product ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <Link href={`/products/${product.id}`}>
-              <DropdownMenuItem className="flex gap-1 items-center">
-                <Eye size={15} />
-                View
+        <div className="flex gap-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="text-muted-foreground">
+              <DropdownMenuItem
+                className="flex gap-1 items-center"
+                onClick={() => navigator.clipboard.writeText(product.id)}>
+                <Copy size={15} />
+                Copy product ID
               </DropdownMenuItem>
-            </Link>
-            <Link href={`/products/edit/${product.id}`}>
-              <DropdownMenuItem className="flex gap-1 items-center">
-                <Pencil size={15} />
-                Edit
+              <DropdownMenuSeparator />
+              <Link href={`/products/${product.id}`}>
+                <DropdownMenuItem className="flex gap-1 items-center">
+                  <Eye size={15} />
+                  View
+                </DropdownMenuItem>
+              </Link>
+              <Link href={`/products/${product.id}/edit`}>
+                <DropdownMenuItem className="flex gap-1 items-center">
+                  <Pencil size={15} />
+                  Edit
+                </DropdownMenuItem>
+              </Link>
+              <DropdownMenuItem className="flex gap-1 items-center text-destructive">
+                <Trash size={15} />
+                Delete
               </DropdownMenuItem>
-            </Link>
-            <DropdownMenuItem className="flex gap-1 items-center text-destructive">
-              <Trash size={15} />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button
+            asChild
+            size={"sm"}
+            variant={"secondary"}
+            className="border-primary border h-8">
+            <Link href={`/checkout/${product.id}`}> Generate Link</Link>
+          </Button>
+        </div>
       );
     },
   },
@@ -144,7 +155,7 @@ export function ProductTable<TData, TValue>({
   });
 
   return (
-    <div>
+    <div className="flex flex-col space-y-2">
       <div className="rounded-md border">
         <Table>
           <TableHeader>

@@ -22,10 +22,10 @@ const page = ({ params }: { params: { id: string } }) => {
     <div className="flex flex-col space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">
-          Product Details for {params.id}
+          View Product Details
         </h2>
         <div className="flex gap-4 justify-end">
-          <Link href={`/products/edit/${params.id}`}>
+          <Link href={`/products/${params.id}/edit`}>
             <Button variant={"outline"} className="text-primary">
               <Pencil></Pencil>
             </Button>

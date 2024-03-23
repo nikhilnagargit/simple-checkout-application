@@ -34,9 +34,10 @@ const sidebarItems = [
     icon: Settings,
   },
 ];
-
+let count = 0;
 function Sidebar() {
   const pathname = usePathname();
+  console.log("sidebar rendered", count++);
   return (
     <aside className="w-[270px] max-w-xs h-screen fixed left-0 top-0 z-40 border-r">
       <div className="h-full px-4 py-4">
@@ -56,14 +57,20 @@ function Sidebar() {
         <div className="mt-5">
           <div className="flex flex-col gap-1 w-full">
             {sidebarItems.map((item, idx) => (
-              <Link key={idx} href={item.href}>
+              <Link key={item.href} href={item.href}>
                 <Button
-                  variant={pathname === item.href ? "secondary" : "ghost"}
-                  className={cn(
-                    "gap-2 justify-start w-full",
-                    pathname === item.href ? "text-primary" : ""
-                  )}>
+                  variant={
+                    "/" + pathname.split("/")[1] === item.href
+                      ? "secondary"
+                      : "ghost"
+                  }
+                  className={
+                    "/" + pathname.split("/")[1] === item.href
+                      ? "gap-2 justify-start w-full text-primary"
+                      : "gap-2 justify-start w-full"
+                  }>
                   <item.icon size={20} />
+                  {/* <span>{pathname.split("/")[1]}</span> */}
                   <span>{item.label}</span>
                 </Button>
               </Link>

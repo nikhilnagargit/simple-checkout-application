@@ -33,11 +33,13 @@ import {
   Minus,
   Pen,
   Pencil,
+  Router,
   Trash,
   X,
 } from "lucide-react";
 import { FancyMultiSelect } from "./multi-select-input";
 import ShippingMethodInput from "./shippingmethod-input";
+import { useRouter } from "next/navigation";
 
 // defining shipping zone form shhema using zod
 const shippingZoneFormSchema = z.object({
@@ -86,6 +88,7 @@ const defaultValues: Partial<ShippingZoneFormValues> = {
 };
 
 export default function ShippingZoneForm({ editMode }: { editMode: boolean }) {
+  const router = useRouter();
   const form = useForm<ShippingZoneFormValues>({
     resolver: zodResolver(shippingZoneFormSchema),
     defaultValues,
@@ -98,6 +101,8 @@ export default function ShippingZoneForm({ editMode }: { editMode: boolean }) {
   });
 
   function onSubmit(data: ShippingZoneFormValues) {
+    // navigate to details view again
+    router.back();
     toast({
       title: "You submitted the following values:",
       description: (
@@ -114,6 +119,7 @@ export default function ShippingZoneForm({ editMode }: { editMode: boolean }) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
+              disabled={!editMode}
               control={form.control}
               name="name"
               render={({ field }) => (
@@ -135,12 +141,11 @@ export default function ShippingZoneForm({ editMode }: { editMode: boolean }) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Select Countries</FormLabel>
-                  <FormControl>
-                    <FancyMultiSelect
-                      onChangeSelection={field.onChange}
-                      selectedItems={field.value}
-                    />
-                  </FormControl>
+                  <FancyMultiSelect
+                    disabled={!editMode}
+                    onChangeSelection={field.onChange}
+                    selectedItems={field.value}
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -156,6 +161,7 @@ export default function ShippingZoneForm({ editMode }: { editMode: boolean }) {
                   className="border p-4 rounded-md grid grid-cols-7 gap-4">
                   <div className="col-span-6">
                     <FormField
+                      disabled={!editMode}
                       control={form.control}
                       name={`shippingMethods.${index}.name`}
                       render={({ field }) => (
@@ -186,36 +192,35 @@ export default function ShippingZoneForm({ editMode }: { editMode: boolean }) {
                   )}
                   <div className="col-span-7">
                     <ShippingMethodInput
+                      disabled={!editMode}
                       form={form}
                       shippingMethodIndex={index}
                     />
                   </div>
                 </div>
               ))}
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() =>
-                  append({
-                    name: "",
-                    ranges: [{ from: 0, to: 0, amount: 0 }],
-                  })
-                }>
-                + Add New Method
-              </Button>
+              {editMode && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() =>
+                    append({
+                      name: "",
+                      ranges: [{ from: 0, to: 0, amount: 0 }],
+                    })
+                  }>
+                  + Add New Method
+                </Button>
+              )}
             </div>
-            <div className="flex gap-6">
-              <Button type="submit" disabled={!editMode}>
-                Save
-              </Button>
-              <Button
-                type="button"
-                variant={"destructive"}
-                disabled={!editMode}>
-                Delete
-              </Button>
-            </div>
+            {editMode && (
+              <div className="flex gap-6">
+                <Button type="submit" disabled={!editMode}>
+                  Save
+                </Button>
+              </div>
+            )}
           </form>
         </Form>
       </div>

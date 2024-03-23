@@ -15,9 +15,11 @@ import { CirclePlus, CornerDownRight, X } from "lucide-react";
 const ShippingMethodInput = ({
   form,
   shippingMethodIndex,
+  disabled,
 }: {
   form: UseFormReturn<ShippingZoneFormValues>;
   shippingMethodIndex: number;
+  disabled: boolean;
 }) => {
   // range fields
   const { fields, append, remove } = useFieldArray({
@@ -37,12 +39,18 @@ const ShippingMethodInput = ({
           <div key={field.id} className="grid grid-cols-8 gap-4">
             <div className="col-span-2">
               <FormField
+                disabled={disabled}
                 control={form.control}
                 name={`shippingMethods.${shippingMethodIndex}.ranges.${index}.from`}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder="From" {...field} />
+                      <Input
+                        disabled={disabled}
+                        placeholder="From"
+                        {...field}
+                        type="number"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -51,12 +59,13 @@ const ShippingMethodInput = ({
             </div>
             <div className="col-span-2">
               <FormField
+                disabled={disabled}
                 control={form.control}
                 name={`shippingMethods.${shippingMethodIndex}.ranges.${index}.to`}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder="To" {...field} />
+                      <Input placeholder="To" {...field} type="number" />
                     </FormControl>
 
                     <FormMessage />
@@ -66,12 +75,13 @@ const ShippingMethodInput = ({
             </div>
             <div className="col-span-2">
               <FormField
+                disabled={disabled}
                 control={form.control}
                 name={`shippingMethods.${shippingMethodIndex}.ranges.${index}.amount`}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder="Amount" {...field} />
+                      <Input placeholder="Amount" {...field} type="number" />
                     </FormControl>
 
                     <FormMessage />
@@ -80,17 +90,19 @@ const ShippingMethodInput = ({
               />
             </div>
             <div className="col-span-1 flex">
-              <Button
-                type="button"
-                className="text-destructive col-span-1"
-                variant={"ghost"}
-                title="Add row"
-                onClick={() => {
-                  if (index !== 0) remove(index);
-                }}>
-                <X size={20}></X>
-              </Button>
-              {(index === fields.length - 1 || !fields) && (
+              {!disabled && (
+                <Button
+                  type="button"
+                  className="text-destructive col-span-1"
+                  variant={"ghost"}
+                  title="Add row"
+                  onClick={() => {
+                    if (index !== 0) remove(index);
+                  }}>
+                  <X size={20}></X>
+                </Button>
+              )}
+              {(index === fields.length - 1 || !fields) && !disabled && (
                 <Button
                   type="button"
                   className="text-primary col-span-1"

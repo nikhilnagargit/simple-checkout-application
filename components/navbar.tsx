@@ -20,7 +20,7 @@ import {
 
 function Navbar() {
   return (
-    <div className="flex h-12 items-center justify-end px-8 border-b gap-6 z-40 ml-[270px]">
+    <div className="flex h-12 items-center justify-end px-8 border-b gap-6 z-40 ml-[270px] bg-gradient-to-r from-slate-50 via-blue-100 to-slate-50">
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="ghost" className="rounded-full h-8 w-8 p-0">
