@@ -21,7 +21,7 @@ const page = () => {
           Create New Product
         </h2>
       </div>
-      <ProductForm editMode={true} defaultValues={defaultValues} />
+      <ProductForm editMode={true} />
     </div>
   );
 };

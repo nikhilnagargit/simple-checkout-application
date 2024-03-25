@@ -28,6 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { CloudUpload } from "lucide-react";
 import { useRouter } from "next/navigation";
+import ImageUploader from "./image-uploader";
 
 const productFormSchema = z.object({
   name: z
@@ -35,25 +36,31 @@ const productFormSchema = z.object({
     .min(2, {
       message: "Product name must be at least 2 characters.",
     })
-    .max(20, {
+    .max(30, {
       message: "Product name must be less than 20 characters.",
     }),
-  description: z
-    .string()
-    .max(100, {
-      message: "Product description must be less than 100 characters.",
-    })
-    .optional(),
+  description: z.string().max(100, {
+    message: "Product description must be less than 100 characters.",
+  }),
   category: z.string({
     required_error: "Please select a category to display.",
   }),
   type: z.enum(["digital", "physical"], {
     required_error: "You need to select a product type.",
   }),
-  weight: z.coerce.number().optional(),
-  price: z.coerce.number(),
-  quantity: z.coerce.number(),
-  image: z.string().optional(),
+  weight: z.coerce
+    .number({ required_error: "select quantity" })
+    .nonnegative()
+    .optional(),
+  price: z.coerce
+    .number({ required_error: "select quantity" })
+    .nonnegative({ message: "positive number required" }),
+  quantity: z.coerce
+    .number({ required_error: "select quantity" })
+    .nonnegative(),
+  image: z
+    .string({ required_error: "select an image" })
+    .url({ message: "please upload an image" }),
 });
 
 // defining the type for output object of form through zod validation
@@ -61,18 +68,26 @@ export type ProductFormValues = z.infer<typeof productFormSchema>;
 
 interface ProductFormProps {
   editMode: boolean;
-  defaultValues: Partial<ProductFormValues>;
 }
 let count = 0;
 
-const ProductForm = ({ editMode, defaultValues }: ProductFormProps) => {
+const ProductForm = ({ editMode }: ProductFormProps) => {
   // define the toast component
   console.log("Product form rerendered", count++);
   const { toast } = useToast();
   const router = useRouter();
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
-    defaultValues,
+    defaultValues: {
+      name: "",
+      description: "",
+      category: "",
+      type: "digital",
+      weight: 0,
+      price: 0,
+      quantity: 0,
+      image: "",
+    },
     mode: "onSubmit",
   });
 
@@ -91,7 +106,11 @@ const ProductForm = ({ editMode, defaultValues }: ProductFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+      <form
+        onSubmit={form.handleSubmit(onSubmit, () => {
+          console.log(form.formState.errors);
+        })}
+        className="space-y-2">
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-2 space-y-2">
             <FormField
@@ -242,24 +261,7 @@ const ProductForm = ({ editMode, defaultValues }: ProductFormProps) => {
           </div>
 
           <div className="space-y-4 col-span-1">
-            <FormField
-              control={form.control}
-              disabled={!editMode}
-              name="image"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Product Image</FormLabel>
-                  <FormControl>
-                    <div className="text-muted-foreground w-[200px] h-[200px] border flex flex-col items-center justify-center">
-                      <CloudUpload size={50} strokeWidth={1} />
-                      <p>Upload Image</p>
-                      {/* <Input type="file" {...field}/> */}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <ImageUploader form={form} disabled={!editMode} />
           </div>
         </div>
         {editMode && (
