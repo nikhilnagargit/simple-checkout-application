@@ -76,7 +76,7 @@ const ImageUploader = ({
               imageInputRef.current?.click();
               e.stopPropagation();
             }}>
-            {/* <input type="text" {...field} /> */}
+            {/* <input type="text" {...sdfgsfdfgsd} /> fgfgssdfgsdfgsdfgsdfgsd*/}
             {image ? (
               <Image alt="img" fill={true} sizes="w-full h-full" src={image} />
             ) : (
@@ -86,7 +86,8 @@ const ImageUploader = ({
               </div>
             )}
           </div>
-          {loading && <Progress value={progressvalue} />}
+
+          {loading && <Progress value={progressvalue} className="h-2" />}
           <Input
             id="dropzone-file"
             accept="image/png, image/jpeg"
@@ -97,6 +98,7 @@ const ImageUploader = ({
           />
         </div>
       }
+
       <FormMessage>{form.formState.errors.image?.message}</FormMessage>
     </FormItem>
   );

@@ -8,8 +8,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { createClient } from "@/utils/supabase/server";
+// import { redirect } from "next/navigation";
 
-const page = () => {
+const page = async () => {
+  // const supabase = createClient();
+  // const { data, error } = await supabase.auth.getUser();
+  // if (error || !data?.user) {
+  //   console.log(error);
+  //   redirect("/login");
+  // }
+  // console.log(data);
   return (
     <div className="flex flex-col space-y-4">
       <div className="flex items-center justify-between">

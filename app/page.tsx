@@ -1,5 +1,7 @@
-import Image from "next/image";
-import Sidebar from "@/components/sidebar";
-export default function Home() {
-  return <div>Nothing here</div>;
-}
+import React from "react";
+
+const page = () => {
+  return <div>page is customize</div>;
+};
+
+export default page;

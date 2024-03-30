@@ -21,9 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Sidebar />
-        <Navbar />
-        <main className="ml-[270px] p-6">{children}</main>
+        {/* <Sidebar />
+        <Navbar /> */}
+        {/* <main className="ml-[270px] p-6">{children}</main> */}
+        {children}
+        {/* <Toaster></Toaster> */}
         <Toaster></Toaster>
       </body>
     </html>

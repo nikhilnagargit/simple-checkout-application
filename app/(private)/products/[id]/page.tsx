@@ -35,7 +35,7 @@ const page = ({ params }: { params: { id: string } }) => {
           </Button>
         </div>
       </div>
-      <ProductForm editMode={false} defaultValues={defaultValues} />
+      <ProductForm editMode={false} />
     </div>
   );
 };
