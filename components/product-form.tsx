@@ -10,7 +10,6 @@ import { useToast } from "@/components/ui/use-toast";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -25,10 +24,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
-import { CloudUpload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "./image-uploader";
+import { createClient } from "@/utils/supabase/client";
+import { Product } from "./product-table";
+import { useEffect } from "react";
 
 const productFormSchema = z.object({
   name: z
@@ -45,9 +45,7 @@ const productFormSchema = z.object({
   category: z.string({
     required_error: "Please select a category to display.",
   }),
-  type: z.enum(["digital", "physical"], {
-    required_error: "You need to select a product type.",
-  }),
+  type: z.string(),
   weight: z.coerce
     .number({ required_error: "select quantity" })
     .nonnegative()
@@ -68,12 +66,10 @@ export type ProductFormValues = z.infer<typeof productFormSchema>;
 
 interface ProductFormProps {
   editMode: boolean;
+  product?: Product;
 }
-let count = 0;
 
-const ProductForm = ({ editMode }: ProductFormProps) => {
-  // define the toast component
-  console.log("Product form rerendered", count++);
+const ProductForm = ({ editMode, product }: ProductFormProps) => {
   const { toast } = useToast();
   const router = useRouter();
   const form = useForm<ProductFormValues>({
@@ -82,7 +78,7 @@ const ProductForm = ({ editMode }: ProductFormProps) => {
       name: "",
       description: "",
       category: "",
-      type: "digital",
+      type: "physical",
       weight: 0,
       price: 0,
       quantity: 0,
@@ -91,16 +87,40 @@ const ProductForm = ({ editMode }: ProductFormProps) => {
     mode: "onSubmit",
   });
 
-  function onSubmit(data: ProductFormValues) {
-    console.log(data);
+  useEffect(() => {
+    if (product) {
+      form.setValue("name", product.name);
+      form.setValue("description", product.description);
+      form.setValue("quantity", product.quantity);
+      form.setValue("type", product.type);
+      form.setValue("weight", product.weight);
+      form.setValue("image", product.image);
+      form.setValue("price", product.price);
+      form.setValue("category", product.category);
+    }
+  });
+
+  async function onSubmit(formdata: ProductFormValues) {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("products")
+      .insert([formdata])
+      .select();
+    if (error) {
+      toast({
+        title: "Product creation failed",
+        description: (
+          <p className="text-destructive">{error.message + " " + error.code}</p>
+        ),
+      });
+      return;
+    }
+
     toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+      title: "Product created successfully.",
+      description: <p className="text-green-700">{"1 item inserted."}</p>,
     });
+
     router.back();
   }
 
@@ -157,7 +177,8 @@ const ProductForm = ({ editMode }: ProductFormProps) => {
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                    disabled={!editMode}>
+                    disabled={!editMode}
+                    value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Choose Category" />
@@ -170,9 +191,7 @@ const ProductForm = ({ editMode }: ProductFormProps) => {
                       <SelectItem value="Gift Item">Gift Item</SelectItem>
                     </SelectContent>
                   </Select>
-                  {/* <FormDescription>
-                    Select the category for product.
-                  </FormDescription> */}
+
                   <FormMessage />
                 </FormItem>
               )}

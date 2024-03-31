@@ -1,23 +1,32 @@
-import React from "react";
+"use client";
 
+import React, { useEffect, useState } from "react";
 import ProductForm, { ProductFormValues } from "@/components/product-form";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
 import Link from "next/link";
-
-// This can come from database or API.
-const defaultValues: Partial<ProductFormValues> = {
-  name: "Car",
-  description: "best car",
-  category: "Gift Item",
-  type: "digital",
-  weight: 16660,
-  price: 88880,
-  quantity: 80,
-  image: "",
-};
+import { Product } from "@/components/product-table";
+import { createClient } from "@/utils/supabase/client";
 
 const page = ({ params }: { params: { id: string } }) => {
+  const [product, setProduct] = useState<Product | undefined>(undefined);
+  const supabase = createClient();
+  useEffect(() => {
+    async function fetchProduct() {
+      let { data: products, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", params.id);
+
+      if (error) {
+        console.log(error);
+      } else {
+        setProduct(() => (products ? products[0] : undefined));
+      }
+    }
+
+    fetchProduct();
+  }, []);
   return (
     <div className="flex flex-col space-y-4">
       <div className="flex items-center justify-between">
@@ -35,7 +44,7 @@ const page = ({ params }: { params: { id: string } }) => {
           </Button>
         </div>
       </div>
-      <ProductForm editMode={false} />
+      <ProductForm editMode={false} product={product} />
     </div>
   );
 };

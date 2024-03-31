@@ -76,7 +76,6 @@ const ImageUploader = ({
               imageInputRef.current?.click();
               e.stopPropagation();
             }}>
-            {/* <input type="text" {...sdfgsfdfgsd} /> fgfgssdfgsdfgsdfgsdfgsd*/}
             {image ? (
               <Image alt="img" fill={true} sizes="w-full h-full" src={image} />
             ) : (

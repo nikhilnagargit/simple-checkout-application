@@ -24,24 +24,26 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 // define the types
 export type Product = {
   id: string;
   name: string;
   category: string;
-  type: "Digital" | "Physical";
+  type: string;
   price: number;
   quantity: number;
   description: string;
-  created: string;
-  status: "Active" | "Inactive";
+  created_at: string;
+  status: string;
+  image: string;
+  weight: number;
 };
 
 // set the columm definition
@@ -55,11 +57,7 @@ export const columns: ColumnDef<Product>[] = [
         <Link
           href={"/products/" + product.id}
           className="flex gap-2 items-center">
-          <Image
-            alt="img"
-            height={44}
-            width={44}
-            src={"/images/laptop.jpg"}></Image>
+          <Image alt="img" height={44} width={44} src={product.image}></Image>
           <div className="">{product.name}</div>
         </Link>
       );
@@ -78,11 +76,22 @@ export const columns: ColumnDef<Product>[] = [
     },
   },
   {
-    accessorKey: "created",
+    // accessorKey: "created_at",
+    cell: ({ row }) => {
+      const date = new Date(row.original.created_at);
+      return <div className="">{date.toLocaleDateString()}</div>;
+    },
     header: "Created",
   },
   {
-    accessorKey: "status",
+    // accessorKey: "status",
+    cell: ({ row }) => {
+      return (
+        <div className="">
+          {row.original.quantity > 0 ? "active" : "out of stock"}
+        </div>
+      );
+    },
     header: "Status",
   },
   {
@@ -138,17 +147,26 @@ export const columns: ColumnDef<Product>[] = [
   },
 ];
 
-interface ProductTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-}
+export function ProductTable() {
+  const [productData, setProductData] = useState<Product[]>([]);
+  const supabase = createClient();
 
-export function ProductTable<TData, TValue>({
-  columns,
-  data,
-}: ProductTableProps<TData, TValue>) {
+  async function fetchProducts() {
+    const { data: products, error } = await supabase
+      .from("products")
+      .select("*");
+    if (error) {
+      console.log(error);
+    } else {
+      setProductData(() => products);
+    }
+    // setData(() => products);
+  }
+  useEffect(() => {
+    fetchProducts();
+  }, []);
   const table = useReactTable({
-    data,
+    data: productData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
