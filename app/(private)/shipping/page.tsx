@@ -61,8 +61,8 @@ const page = () => {
         <h2 className="text-3xl font-bold tracking-tight">Shipping Zones</h2>
         <Link href={"shipping/create"}>
           <Button size={"sm"} variant={"default"}>
-            <Plus size={20}></Plus>
-            Create New Zone
+            <Plus size={15}></Plus>
+            Add Zone
           </Button>
         </Link>
       </div>

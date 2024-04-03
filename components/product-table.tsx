@@ -17,19 +17,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Copy, Eye, MoreVertical, Pencil, Trash } from "lucide-react";
+
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
+import { toast } from "./ui/use-toast";
+import ProductTableRowActions from "./product-table-row-actions";
 
 // define the types
 export type Product = {
@@ -47,7 +44,7 @@ export type Product = {
 };
 
 // set the columm definition
-export const columns: ColumnDef<Product>[] = [
+export const Columns = ({ handleDelete }: any): ColumnDef<Product>[] => [
   {
     accessorKey: "name",
     header: "Product",
@@ -96,52 +93,11 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     id: "actions",
+
     cell: ({ row }) => {
       const product = row.original;
       return (
-        <div className="flex gap-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="text-muted-foreground">
-              <DropdownMenuItem
-                className="flex gap-1 items-center"
-                onClick={() => navigator.clipboard.writeText(product.id)}>
-                <Copy size={15} />
-                Copy product ID
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <Link href={`/products/${product.id}`}>
-                <DropdownMenuItem className="flex gap-1 items-center">
-                  <Eye size={15} />
-                  View
-                </DropdownMenuItem>
-              </Link>
-              <Link href={`/products/${product.id}/edit`}>
-                <DropdownMenuItem className="flex gap-1 items-center">
-                  <Pencil size={15} />
-                  Edit
-                </DropdownMenuItem>
-              </Link>
-              <DropdownMenuItem className="flex gap-1 items-center text-destructive">
-                <Trash size={15} />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Button
-            asChild
-            size={"sm"}
-            variant={"secondary"}
-            className="border-primary border h-8">
-            <Link href={`/checkout/${product.id}`}> Generate Link</Link>
-          </Button>
-        </div>
+        <ProductTableRowActions product={product} handleDelete={handleDelete} />
       );
     },
   },
@@ -150,6 +106,34 @@ export const columns: ColumnDef<Product>[] = [
 export function ProductTable() {
   const [productData, setProductData] = useState<Product[]>([]);
   const supabase = createClient();
+  const router = useRouter();
+  // utility function to delete the products.
+  async function handleDelete(product_id: string) {
+    const session = await supabase.auth.getSession();
+    // check if user session is there
+    if (session) {
+      // delete the current record
+      const { error } = await supabase
+        .from("products")
+        .delete()
+        .eq("id", product_id)
+        .eq("user_id", session.data.session?.user.id);
+      // if error in deletion
+      if (error) {
+        toast({
+          title: "Delete failed.",
+          description: (
+            <p className="text-destructive">
+              {error.message + " " + error.code}
+            </p>
+          ),
+        });
+      }
+      // refresh the page
+      // router.replace("/products");
+      location.reload();
+    }
+  }
 
   async function fetchProducts() {
     const { data: products, error } = await supabase
@@ -162,12 +146,14 @@ export function ProductTable() {
     }
     // setData(() => products);
   }
+
   useEffect(() => {
     fetchProducts();
   }, []);
+
   const table = useReactTable({
     data: productData,
-    columns,
+    columns: Columns({ handleDelete }),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
@@ -214,7 +200,7 @@ export function ProductTable() {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={Columns(handleDelete).length}
                   className="h-24 text-center">
                   No results.
                 </TableCell>

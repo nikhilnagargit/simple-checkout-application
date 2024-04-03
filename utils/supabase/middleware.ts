@@ -9,7 +9,7 @@ export async function updateSession(request: NextRequest) {
     },
   })
 
-  console.log(request);
+
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -62,7 +62,7 @@ const {data,error} = await supabase.auth.getUser();
 
 // if unable to get/refresh session, redirect to login
 if(error) {
-  // console.log(error);
+  console.log(error);
   // rewrite will mask the url, so users cannot know that he changed the page.
   return NextResponse.rewrite( new URL('/login',request.url));
 }

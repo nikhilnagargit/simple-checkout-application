@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   FormControl,
   FormField,
@@ -6,7 +6,7 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
-import axios, { AxiosProgressEvent, CancelTokenSource } from "axios";
+import axios from "axios";
 
 import { ProductFormValues } from "./product-form";
 import { UseFormReturn } from "react-hook-form";
@@ -15,7 +15,6 @@ import { Input } from "./ui/input";
 import Image from "next/image";
 
 import { Progress } from "./ui/progress";
-import { register } from "module";
 
 const ImageUploader = ({
   form,
@@ -38,6 +37,10 @@ const ImageUploader = ({
       setProgressvalue(progress);
     },
   };
+
+  useEffect(() => {
+    setImage(form.getValues("image"));
+  });
 
   const uploadImage = async (e: any) => {
     const formData = new FormData();
@@ -76,7 +79,7 @@ const ImageUploader = ({
               imageInputRef.current?.click();
               e.stopPropagation();
             }}>
-            {image ? (
+            {image !== "" ? (
               <Image alt="img" fill={true} sizes="w-full h-full" src={image} />
             ) : (
               <div className="flex flex-col items-center justify-center">
@@ -87,14 +90,16 @@ const ImageUploader = ({
           </div>
 
           {loading && <Progress value={progressvalue} className="h-2" />}
-          <Input
-            id="dropzone-file"
-            accept="image/png, image/jpeg"
-            type="file"
-            {...form.register("image")}
-            onChange={uploadImage}
-            ref={imageInputRef}
-          />
+          {!disabled && (
+            <Input
+              id="dropzone-file"
+              accept="image/png, image/jpeg"
+              type="file"
+              {...form.register("image")}
+              onChange={uploadImage}
+              ref={imageInputRef}
+            />
+          )}
         </div>
       }
 

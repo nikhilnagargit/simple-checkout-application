@@ -3,10 +3,20 @@ import { boolean, z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-
 import { useToast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import {
   Form,
   FormControl,
@@ -28,8 +38,10 @@ import { useRouter } from "next/navigation";
 import ImageUploader from "./image-uploader";
 import { createClient } from "@/utils/supabase/client";
 import { Product } from "./product-table";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
+// define the zod schema for porduct form
 const productFormSchema = z.object({
   name: z
     .string()
@@ -66,10 +78,13 @@ export type ProductFormValues = z.infer<typeof productFormSchema>;
 
 interface ProductFormProps {
   editMode: boolean;
-  product?: Product;
+  product_id?: string;
 }
 
-const ProductForm = ({ editMode, product }: ProductFormProps) => {
+const ProductForm = ({ editMode, product_id }: ProductFormProps) => {
+  //dont't delete product state.
+  const [product, setProduct] = useState<Product | undefined>(undefined);
+  const supabase = createClient();
   const { toast } = useToast();
   const router = useRouter();
   const form = useForm<ProductFormValues>({
@@ -87,41 +102,96 @@ const ProductForm = ({ editMode, product }: ProductFormProps) => {
     mode: "onSubmit",
   });
 
+  // side effects
   useEffect(() => {
-    if (product) {
-      form.setValue("name", product.name);
-      form.setValue("description", product.description);
-      form.setValue("quantity", product.quantity);
-      form.setValue("type", product.type);
-      form.setValue("weight", product.weight);
-      form.setValue("image", product.image);
-      form.setValue("price", product.price);
-      form.setValue("category", product.category);
+    // function declaration only
+    async function fetchProduct() {
+      let { data: products, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", product_id);
+
+      if (error) {
+        console.log(error);
+      } else {
+        setProduct(() => (products ? products[0] : undefined));
+        if (products) {
+          form.setValue("name", products[0].name);
+          form.setValue("description", products[0].type);
+          form.setValue("weight", products[0].weight);
+          form.setValue("image", products[0].image);
+          form.setValue("price", products[0].price);
+          form.setValue("category", products[0].category);
+        }
+      }
     }
-  });
+    // fetch the product , if there is existing product_id prop
+    if (product_id) {
+      // function call
+      fetchProduct();
+      console.log("fetching product");
+    }
+    console.log("effect running");
+  }, []);
 
   async function onSubmit(formdata: ProductFormValues) {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("products")
-      .insert([formdata])
-      .select();
-    if (error) {
-      toast({
-        title: "Product creation failed",
-        description: (
-          <p className="text-destructive">{error.message + " " + error.code}</p>
-        ),
-      });
-      return;
+    const session = await supabase.auth.getSession();
+
+    // check if user session is there
+    if (session) {
+      if (editMode && !product_id) {
+        // create new record if current prduct id doest not exists
+        const { data, error } = await supabase
+          .from("products")
+          .insert([{ ...formdata, user_id: session.data.session?.user.id }])
+          .select();
+        if (error) {
+          toast({
+            title: "Product creation failed",
+            description: (
+              <p className="text-destructive">
+                {error.message + " " + error.code}
+              </p>
+            ),
+          });
+        } else {
+          toast({
+            title: "Product created successfully.",
+            description: <p className="text-green-700">{"1 item inserted."}</p>,
+          });
+        }
+
+        // go to the previous page
+        router.back();
+      } else if (editMode) {
+        // update existing record, if product id already exists.
+        const { data, error } = await supabase
+          .from("products")
+          .update([{ ...formdata }])
+          .eq("user_id", session.data.session?.user.id)
+          .eq("id", product_id)
+          .select();
+
+        if (error) {
+          toast({
+            title: "Product update failed",
+            description: (
+              <p className="text-destructive">
+                {error.message + " " + error.code}
+              </p>
+            ),
+          });
+        } else {
+          toast({
+            title: "Product updated successfully.",
+            description: <p className="text-green-700">{"1 item updated"}</p>,
+          });
+        }
+
+        // go to the details page
+        router.replace("/products/" + product_id);
+      }
     }
-
-    toast({
-      title: "Product created successfully.",
-      description: <p className="text-green-700">{"1 item inserted."}</p>,
-    });
-
-    router.back();
   }
 
   return (
@@ -284,9 +354,32 @@ const ProductForm = ({ editMode, product }: ProductFormProps) => {
           </div>
         </div>
         {editMode && (
-          <Button type="submit" disabled={!editMode}>
-            Save Product
-          </Button>
+          <div className="flex gap-4">
+            <Button type="submit" disabled={!editMode}>
+              Save Product
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button type="button" variant={"outline"} disabled={!editMode}>
+                  Cancel
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Discard the changes?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    All the changed you made to this form will be lost.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogAction>
+                    <Link href={`/products/${product_id}`}>Yes</Link>
+                  </AlertDialogAction>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         )}
       </form>
     </Form>

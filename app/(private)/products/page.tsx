@@ -2,7 +2,7 @@ import React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { ProductTable, Product, columns } from "@/components/product-table";
+import { ProductTable } from "@/components/product-table";
 import Link from "next/link";
 
 const page = () => {
@@ -12,7 +12,7 @@ const page = () => {
         <h2 className="text-3xl font-bold tracking-tight">Products</h2>
         <Link href={"products/create"}>
           <Button size={"sm"} variant={"default"}>
-            <Plus size={20}></Plus>
+            <Plus size={15}></Plus>
             Add Product
           </Button>
         </Link>

@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 
+
+// login the current user
 export async function login(formdata:{email:string,password:string}) {
   const supabase = createClient()
   const { error} = await supabase.auth.signInWithPassword(formdata)
@@ -14,9 +16,6 @@ export async function login(formdata:{email:string,password:string}) {
   revalidatePath('/', 'layout')
   redirect('/dashboard')
 }
-
-
-
 
 export async function signup(formdata:{email:string,password:string}) {
   const supabase = createClient()
@@ -42,3 +41,4 @@ export async function logout() {
   await supabase.auth.signOut()
   redirect('/login');
 }
+
