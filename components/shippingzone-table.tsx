@@ -16,18 +16,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Copy, Eye, MoreVertical, Pencil, ShipIcon, Trash } from "lucide-react";
-import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import Link from "next/link";
+import ShippingZoneTableRowActions from "./shippingzone-tabel-row-actions";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
+import { toast } from "./ui/use-toast";
 
 // define the types
 
@@ -37,7 +34,6 @@ export type Range = {
   amount: number;
 };
 export type ShippingMethod = {
-  id: string;
   name: string;
   ranges: Range[];
 };
@@ -45,13 +41,13 @@ export type ShippingZone = {
   id: string;
   name: string;
   countries: string[];
-  created: string;
-  status: "Active" | "Inactive";
-  shippingMethods: ShippingMethod[];
+  created_at: string;
+  status: string;
+  shipping_methods: ShippingMethod[];
 };
 
 // set the columm definition
-export const columns: ColumnDef<ShippingZone>[] = [
+export const Columns = ({ handleDelete }: any): ColumnDef<ShippingZone>[] => [
   {
     accessorKey: "name",
     header: "ShippingZone",
@@ -67,12 +63,18 @@ export const columns: ColumnDef<ShippingZone>[] = [
     },
   },
   {
-    accessorKey: "status",
+    cell: ({ row }) => {
+      return <div>Active</div>;
+    },
     header: "Status",
   },
   {
-    accessorKey: "created",
-    header: "Created On",
+    // accessorKey: "created_at",
+    cell: ({ row }) => {
+      const date = new Date(row.original.created_at);
+      return <div>{date.toLocaleDateString()}</div>;
+    },
+    header: "Created",
   },
 
   {
@@ -80,51 +82,67 @@ export const columns: ColumnDef<ShippingZone>[] = [
     cell: ({ row }) => {
       const shipping_zone = row.original;
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="text-muted-foreground">
-            {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
-
-            <Link href={`/shipping/${shipping_zone.id}`}>
-              <DropdownMenuItem className="flex gap-1 items-center">
-                <Eye size={15} />
-                View
-              </DropdownMenuItem>
-            </Link>
-            <Link href={`/shipping/${shipping_zone.id}/edit`}>
-              <DropdownMenuItem className="flex gap-1 items-center">
-                <Pencil size={15} />
-                Edit
-              </DropdownMenuItem>
-            </Link>
-            <DropdownMenuItem className="flex gap-1 items-center text-destructive">
-              <Trash size={15} />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <ShippingZoneTableRowActions
+          shipping_zone={shipping_zone}
+          handleDelete={handleDelete}
+        />
       );
     },
   },
 ];
 
-interface ShippingZoneTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-}
+export function ShippingZoneTable() {
+  const [shippingZoneData, setShippingZoneData] = useState<ShippingZone[]>([]);
+  const supabase = createClient();
+  const router = useRouter();
 
-export function ShippingZoneTable<TData, TValue>({
-  columns,
-  data,
-}: ShippingZoneTableProps<TData, TValue>) {
+  // utility function to delete the shipping zone
+  async function handleDelete(shippingzone_id: string) {
+    const session = await supabase.auth.getSession();
+    // check if user session is there
+    if (session) {
+      // delete the current record
+
+      const { error } = await supabase
+        .from("shipping_zones")
+        .delete()
+        .eq("id", shippingzone_id)
+        .eq("user_id", session.data.session?.user.id);
+      // if error in deletion
+      if (error) {
+        toast({
+          title: "Delete failed.",
+          description: (
+            <p className="text-destructive">
+              {error.message + " " + error.code + " " + error.details}
+            </p>
+          ),
+        });
+      } else {
+        // refresh the page
+        // router.replace("/products");
+        location.reload();
+      }
+    }
+  }
+
+  useEffect(() => {
+    async function fetchShippingZones() {
+      const { data: shipping_zones, error } = await supabase
+        .from("shipping_zones")
+        .select("*");
+      if (error) {
+        console.log(error);
+      } else {
+        setShippingZoneData(() => shipping_zones);
+      }
+    }
+    fetchShippingZones();
+  }, []);
+
   const table = useReactTable({
-    data,
-    columns,
+    data: shippingZoneData,
+    columns: Columns({ handleDelete }),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
@@ -171,7 +189,7 @@ export function ShippingZoneTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={Columns(handleDelete).length}
                   className="h-24 text-center">
                   No results.
                 </TableCell>

@@ -1,58 +1,8 @@
 import React from "react";
-
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import {
-  ShippingZoneTable,
-  ShippingZone,
-  columns,
-} from "@/components/shippingzone-table";
+import { ShippingZoneTable } from "@/components/shippingzone-table";
 import Link from "next/link";
-
-const data: ShippingZone[] = [
-  {
-    id: "61234554",
-    name: "Asian Countries",
-    countries: ["India", "Japan", "Russia"],
-    status: "Active",
-    created: "23/12/2023",
-    shippingMethods: [
-      {
-        id: "123",
-        name: "DHL Express",
-        ranges: [{ from: 100, to: 400, amount: 34 }],
-      },
-    ],
-  },
-  {
-    id: "934543554",
-    name: "Asian Countries",
-    countries: ["India", "Japan", "Russia"],
-    status: "Active",
-    created: "23/12/2023",
-    shippingMethods: [
-      {
-        id: "123",
-        name: "DHL Express",
-        ranges: [{ from: 100, to: 400, amount: 34 }],
-      },
-    ],
-  },
-  {
-    id: "734552254",
-    name: "Asian Countries",
-    countries: ["India", "Japan", "Russia"],
-    status: "Active",
-    created: "23/12/2023",
-    shippingMethods: [
-      {
-        id: "123",
-        name: "DHL Express",
-        ranges: [{ from: 100, to: 400, amount: 34 }],
-      },
-    ],
-  },
-];
 
 const page = () => {
   return (
@@ -67,7 +17,7 @@ const page = () => {
         </Link>
       </div>
       <div className="w-full mx-auto">
-        <ShippingZoneTable columns={columns} data={data} />
+        <ShippingZoneTable />
       </div>
     </div>
   );

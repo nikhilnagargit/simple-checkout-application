@@ -6,6 +6,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "./ui/button";
+import Link from "next/link";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,24 +20,23 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "./ui/button";
-import Link from "next/link";
 
 // helper component
-const Dialog = ({ open, product_id, handleDelete, setOpen }: any) => {
+// helper component
+const Dialog = ({ open, shippingzone_id, handleDelete, setOpen }: any) => {
   return (
     <AlertDialog open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete the product?</AlertDialogTitle>
+          <AlertDialogTitle>Delete the Shipping Zone?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanantely delete the product from our servers.
+            This will permanantely delete the Shipping Zone from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogAction
             onClick={async () => {
-              await handleDelete(product_id);
+              await handleDelete(shippingzone_id);
               setOpen(false);
             }}>
             Yes
@@ -47,20 +49,16 @@ const Dialog = ({ open, product_id, handleDelete, setOpen }: any) => {
     </AlertDialog>
   );
 };
-
-const ProductTableRowActions = ({ product, handleDelete }: any) => {
+const ShippingZoneTableRowActions = ({ handleDelete, shipping_zone }: any) => {
   const [open, setOpen] = useState(false);
   return (
     <div className="flex gap-6">
       <Dialog
         open={open}
         handleDelete={handleDelete}
-        product_id={product.id}
+        shippingzone_id={shipping_zone.id}
         setOpen={setOpen}
       />
-      <Button asChild size={"sm"} variant={"secondary"} className="h-8">
-        <Link href={`/checkout/${product.id}`}> Generate Link</Link>
-      </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
@@ -69,20 +67,18 @@ const ProductTableRowActions = ({ product, handleDelete }: any) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="text-muted-foreground">
-          <Link href={`/products/${product.id}`}>
+          <Link href={`/shipping/${shipping_zone.id}`}>
             <DropdownMenuItem className="flex gap-1 items-center">
               <Eye size={15} />
               View
             </DropdownMenuItem>
           </Link>
-
-          <Link href={`/products/${product.id}/edit`}>
+          <Link href={`/shipping/${shipping_zone.id}/edit`}>
             <DropdownMenuItem className="flex gap-1 items-center">
               <Pencil size={15} />
               Edit
             </DropdownMenuItem>
           </Link>
-
           <DropdownMenuItem
             className="flex gap-1 items-center text-destructive"
             onClick={() => {
@@ -97,4 +93,4 @@ const ProductTableRowActions = ({ product, handleDelete }: any) => {
   );
 };
 
-export default ProductTableRowActions;
+export default ShippingZoneTableRowActions;

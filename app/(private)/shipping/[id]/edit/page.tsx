@@ -13,7 +13,7 @@ const page = ({ params }: { params: { id: string } }) => {
           Edit Shipping Zone
         </h2>
       </div>
-      <ShippingZoneForm editMode={true} />
+      <ShippingZoneForm editMode={true} shippingZone_id={params.id} />
     </div>
   );
 };

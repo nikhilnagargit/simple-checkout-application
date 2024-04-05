@@ -1,6 +1,5 @@
 import Navbar from "@/components/navbar";
 import Sidebar from "@/components/sidebar";
-import { Toaster } from "@/components/ui/toaster";
 
 export default function DashboardLayout({
   children, // will be a page or nested layout

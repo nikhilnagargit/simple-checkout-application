@@ -23,7 +23,7 @@ const ShippingMethodInput = ({
 }) => {
   // range fields
   const { fields, append, remove } = useFieldArray({
-    name: `shippingMethods.${shippingMethodIndex}.ranges`,
+    name: `shipping_methods.${shippingMethodIndex}.ranges`,
     control: form.control,
   });
 
@@ -41,7 +41,7 @@ const ShippingMethodInput = ({
               <FormField
                 disabled={disabled}
                 control={form.control}
-                name={`shippingMethods.${shippingMethodIndex}.ranges.${index}.from`}
+                name={`shipping_methods.${shippingMethodIndex}.ranges.${index}.from`}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -61,7 +61,7 @@ const ShippingMethodInput = ({
               <FormField
                 disabled={disabled}
                 control={form.control}
-                name={`shippingMethods.${shippingMethodIndex}.ranges.${index}.to`}
+                name={`shipping_methods.${shippingMethodIndex}.ranges.${index}.to`}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -77,13 +77,12 @@ const ShippingMethodInput = ({
               <FormField
                 disabled={disabled}
                 control={form.control}
-                name={`shippingMethods.${shippingMethodIndex}.ranges.${index}.amount`}
+                name={`shipping_methods.${shippingMethodIndex}.ranges.${index}.amount`}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
                       <Input placeholder="Amount" {...field} type="number" />
                     </FormControl>
-
                     <FormMessage />
                   </FormItem>
                 )}
@@ -99,7 +98,7 @@ const ShippingMethodInput = ({
                   onClick={() => {
                     if (index !== 0) remove(index);
                   }}>
-                  <X size={20}></X>
+                  <X size={15}></X>
                 </Button>
               )}
               {(index === fields.length - 1 || !fields) && !disabled && (
@@ -111,7 +110,7 @@ const ShippingMethodInput = ({
                   onClick={() => {
                     append({ from: 0, to: 0, amount: 0 });
                   }}>
-                  <CirclePlus size={20}></CirclePlus>
+                  <CirclePlus size={15}></CirclePlus>
                 </Button>
               )}
             </div>

@@ -76,7 +76,7 @@ export const Columns = ({ handleDelete }: any): ColumnDef<Product>[] => [
     // accessorKey: "created_at",
     cell: ({ row }) => {
       const date = new Date(row.original.created_at);
-      return <div className="">{date.toLocaleDateString()}</div>;
+      return <div>{date.toLocaleDateString()}</div>;
     },
     header: "Created",
   },
@@ -107,7 +107,8 @@ export function ProductTable() {
   const [productData, setProductData] = useState<Product[]>([]);
   const supabase = createClient();
   const router = useRouter();
-  // utility function to delete the products.
+
+  // utility function to delete the product.
   async function handleDelete(product_id: string) {
     const session = await supabase.auth.getSession();
     // check if user session is there
@@ -135,19 +136,18 @@ export function ProductTable() {
     }
   }
 
-  async function fetchProducts() {
-    const { data: products, error } = await supabase
-      .from("products")
-      .select("*");
-    if (error) {
-      console.log(error);
-    } else {
-      setProductData(() => products);
-    }
-    // setData(() => products);
-  }
-
   useEffect(() => {
+    async function fetchProducts() {
+      const { data: products, error } = await supabase
+        .from("products")
+        .select("*");
+      if (error) {
+        console.log(error);
+      } else {
+        setProductData(() => products);
+      }
+      // setData(() => products);
+    }
     fetchProducts();
   }, []);
 
@@ -159,7 +159,7 @@ export function ProductTable() {
   });
 
   return (
-    <div className="flex flex-col space-y-2">
+    <div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>

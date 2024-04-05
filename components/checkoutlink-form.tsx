@@ -23,13 +23,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CloudUpload, Copy } from "lucide-react";
 import Image from "next/image";
+import { createClient } from "@/utils/supabase/client";
+import { Product } from "./product-table";
+import { ShippingMethod, ShippingZone } from "./shippingzone-table";
+import ImageUploader from "./image-uploader";
 const checkoutLinkFormSchema = z.object({
   product_id: z.string(),
   shippingzone_id: z.string(),
-  shippingmethod_id: z.string(),
+  shippingmethod_name: z.string(),
   quantity: z.coerce.number(),
 });
 
@@ -42,10 +46,13 @@ interface CheckoutLinkFormProps {
 }
 
 const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
-  // define the toast component
   const { toast } = useToast();
   const [checkoutlink, setCheckoutLink] = useState<string>("");
-
+  const supabase = createClient();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [shippingZones, setShippingZones] = useState<ShippingZone[]>([]);
+  const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
+  const [image, setImage] = useState<string>("");
   const form = useForm<CheckoutLinkFormValues>({
     resolver: zodResolver(checkoutLinkFormSchema),
     mode: "onSubmit",
@@ -64,6 +71,63 @@ const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
       ),
     });
   }
+  // change the options for shipping methods dropdown, based on the shipping zone dropdown value changes
+  useEffect(() => {
+    const id = form.getValues("shippingzone_id");
+    if (id) {
+      const zones = shippingZones.filter((zone) => zone.id.toString() === id);
+      if (zones) {
+        const zone = zones[0];
+        if (zone) {
+          const methods = zone.shipping_methods;
+          setShippingMethods(methods);
+        }
+      }
+    }
+  }, [form.watch("shippingzone_id"), form, shippingZones]);
+
+  // change the image, whenever new product is selected in the dropdown
+  useEffect(() => {
+    if (products.length !== 0) {
+      const id = form.getValues("product_id");
+      const current_product = products.filter(
+        (p, idx) => p.id.toString() === id
+      )[0];
+      setImage(current_product.image);
+    }
+  }, [form.watch("product_id"), products.length]);
+
+  // fetch the records,when page loads
+  useEffect(() => {
+    async function fetchProducts() {
+      const { data: products, error } = await supabase
+        .from("products")
+        .select("*");
+      if (error) {
+        console.log(error);
+      } else {
+        setProducts(() => products);
+      }
+    }
+
+    // function declaration only
+    async function fetchShippingZones() {
+      const { data: shipping_zones, error } = await supabase
+        .from("shipping_zones")
+        .select("*");
+      if (error) {
+        console.log(error);
+      } else {
+        setShippingZones(() => shipping_zones);
+      }
+    }
+
+    // function call
+    fetchShippingZones();
+
+    // call the fetch products function
+    fetchProducts();
+  }, []);
 
   return (
     <Form {...form}>
@@ -92,20 +156,15 @@ const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="728ed52f">Chair</SelectItem>
-                      <SelectItem value="12345d52f">Laptop</SelectItem>
-                      <SelectItem value="32r23ntttr3">
-                        Think and Learn Book
-                      </SelectItem>
-                      <SelectItem value="23r3dfsrr34rg">
-                        Network Adapter
-                      </SelectItem>
-                      <SelectItem value="23r3trsdfffrrg">
-                        Cards Deck - glass
-                      </SelectItem>
-                      <SelectItem value="23r3dt3r4rrrg">
-                        Cards Deck - furniture
-                      </SelectItem>
+                      {products.map((product, idx) => {
+                        return (
+                          <SelectItem
+                            key={product.id.toString()}
+                            value={product.id.toString()}>
+                            {product.name}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -129,13 +188,15 @@ const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="sdfa43f43fsd">
-                        Asian Countries
-                      </SelectItem>
-                      <SelectItem value="34dsfaf4ffasd">
-                        Home Country
-                      </SelectItem>
-                      <SelectItem value="sd34rfdsfa345">USA</SelectItem>
+                      {shippingZones.map((shipping_zone, idx) => {
+                        return (
+                          <SelectItem
+                            key={shipping_zone.id.toString()}
+                            value={shipping_zone.id.toString()}>
+                            {shipping_zone.name}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
 
@@ -146,7 +207,7 @@ const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
             <FormField
               disabled={!editMode}
               control={form.control}
-              name="shippingmethod_id"
+              name="shippingmethod_name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Shipping Method</FormLabel>
@@ -160,14 +221,11 @@ const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Electro3443nics">
-                        DHL Express
-                      </SelectItem>
-                      <SelectItem value="Homsdfor">Blue Dart</SelectItem>
-                      <SelectItem value="Cussdfzed">UPS</SelectItem>
-                      <SelectItem value="GifsdfItem">
-                        Amazone Delivery
-                      </SelectItem>
+                      {shippingMethods?.map((shipping_method, idx) => (
+                        <SelectItem key={idx} value={shipping_method.name}>
+                          {shipping_method.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -218,26 +276,30 @@ const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
             </div>
           </div>
           <div className="col-span-1 space-y-4">
-            <FormField
-              control={form.control}
-              name="shippingmethod_id"
-              disabled={!editMode}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Product Image</FormLabel>
-                  <FormControl>
-                    <div className="text-muted-foreground w-[200px] h-[200px] border flex flex-col items-center justify-center relative">
-                      <Image
-                        alt="img"
-                        fill={true}
-                        sizes="w-full h-full"
-                        src={"/images/laptop.jpg"}></Image>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {image !== "" && (
+              <FormField
+                control={form.control}
+                name="shippingmethod_name"
+                disabled={!editMode}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Selected Product</FormLabel>
+                    <FormControl>
+                      <div className="hover:bg-muted relative max-w-[250px] h-[200px] border-dashed border-2 text-muted-foreground rounded-md flex flex-col items-center justify-center">
+                        <Image
+                          alt="img"
+                          fill={true}
+                          sizes="w-full h-auto"
+                          src={image}
+                          priority
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
         </div>
       </form>

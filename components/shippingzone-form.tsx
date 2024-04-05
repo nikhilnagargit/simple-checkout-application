@@ -17,29 +17,28 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  CirclePlus,
-  CloudUpload,
-  Cross,
-  Minus,
-  Pen,
-  Pencil,
-  Router,
-  Trash,
-  X,
-} from "lucide-react";
+
+import { Trash, X } from "lucide-react";
 import { FancyMultiSelect } from "./multi-select-input";
 import ShippingMethodInput from "./shippingmethod-input";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { ShippingZone } from "./shippingzone-table";
+import { createClient } from "@/utils/supabase/client";
+import { watch } from "fs";
+import { tree } from "next/dist/build/templates/app-page";
 
 // defining shipping zone form shhema using zod
 const shippingZoneFormSchema = z.object({
@@ -53,7 +52,7 @@ const shippingZoneFormSchema = z.object({
     }),
 
   countries: z.array(z.string()),
-  shippingMethods: z.array(
+  shipping_methods: z.array(
     z.object({
       name: z.string(),
       ranges: z.array(
@@ -72,47 +71,130 @@ export type ShippingZoneFormValues = z.infer<typeof shippingZoneFormSchema>;
 
 // This can come from your database or API.
 
-const defaultValues: Partial<ShippingZoneFormValues> = {
-  name: "Asian Countries",
-  countries: ["India", "Japan", "Russia"],
+export default function ShippingZoneForm({
+  editMode,
+  shippingZone_id,
+}: {
+  editMode: boolean;
+  shippingZone_id?: string;
+}) {
+  const [shippingZone, setShippingZone] = useState<ShippingZone | undefined>(
+    undefined
+  );
 
-  shippingMethods: [
-    {
-      name: "DHL Express",
-      ranges: [
-        { from: 100, to: 400, amount: 34 },
-        { from: 300, to: 400, amount: 334 },
-      ],
-    },
-  ],
-};
+  // to refresh the form field countries whenever the form field countries changes
+  const [myKey, setMyKey] = useState<string>("sdf");
 
-let count = 0;
-export default function ShippingZoneForm({ editMode }: { editMode: boolean }) {
+  const { toast } = useToast();
   const router = useRouter();
-  console.log("Shipping zone form rendered.", count++);
+  const supabase = createClient();
   const form = useForm<ShippingZoneFormValues>({
     resolver: zodResolver(shippingZoneFormSchema),
-    defaultValues,
+    defaultValues: {
+      name: "",
+      countries: [],
+      shipping_methods: [
+        {
+          name: "",
+          ranges: [{ from: 0, to: 0, amount: 0 }],
+        },
+      ],
+    },
     mode: "onSubmit",
   });
 
   const { fields, append, remove } = useFieldArray({
-    name: "shippingMethods",
+    name: "shipping_methods",
     control: form.control,
   });
+  // side effects
+  useEffect(() => {
+    // function declaration only
+    async function fetchShippingZone() {
+      let { data: shipping_zones, error } = await supabase
+        .from("shipping_zones")
+        .select("*")
+        .eq("id", shippingZone_id);
 
-  function onSubmit(data: ShippingZoneFormValues) {
-    // navigate to details view again
-    router.back();
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+      if (error) {
+        console.log(error);
+      } else {
+        setShippingZone(() => (shipping_zones ? shipping_zones[0] : undefined));
+        if (shipping_zones) {
+          form.setValue("name", shipping_zones[0].name);
+          form.setValue("countries", shipping_zones[0].countries);
+          form.setValue("shipping_methods", shipping_zones[0].shipping_methods);
+          // changing key, so that form countries component gets rerendered
+          setMyKey("sdfsdfd");
+        }
+      }
+    }
+    // fetch the product , if there is existing product_id prop
+    if (shippingZone_id) {
+      // function call
+      fetchShippingZone();
+    }
+  }, []);
+
+  async function onSubmit(formdata: ShippingZoneFormValues) {
+    const session = await supabase.auth.getSession();
+
+    // check if user session is there
+    if (session) {
+      if (editMode && !shippingZone_id) {
+        // create new record if current shipping zone id doest not exists
+
+        const { data, error } = await supabase
+          .from("shipping_zones")
+          .insert([{ ...formdata, user_id: session.data.session?.user.id }])
+          .select();
+
+        if (error) {
+          toast({
+            title: "Shipping Zone creation failed",
+            description: (
+              <p className="text-destructive">
+                {error.message + " " + error.code}
+              </p>
+            ),
+          });
+        } else {
+          toast({
+            title: "Shipping Zone created successfully.",
+            description: <p className="text-green-700">{"1 item inserted."}</p>,
+          });
+          // go to the previous page
+          router.back();
+        }
+      } else if (editMode) {
+        // update existing record, if shipping zone id already exists.
+        const { data, error } = await supabase
+          .from("shipping_zones")
+          .update([{ ...formdata }])
+          .eq("user_id", session.data.session?.user.id)
+          .eq("id", shippingZone_id)
+          .select();
+
+        if (error) {
+          toast({
+            title: "Shipping Zone update failed",
+            description: (
+              <p className="text-destructive">
+                {error.message + " " + error.code}
+              </p>
+            ),
+          });
+        } else {
+          toast({
+            title: "Shipping Zone updated successfully.",
+            description: <p className="text-green-700">{"1 item updated"}</p>,
+          });
+        }
+
+        // go to the details page
+        router.replace("/shipping/" + shippingZone_id);
+      }
+    }
   }
 
   return (
@@ -130,28 +212,29 @@ export default function ShippingZoneForm({ editMode }: { editMode: boolean }) {
                   <FormControl>
                     <Input placeholder="Shipping Zone" {...field} />
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            <FormField
-              disabled={!editMode}
-              control={form.control}
-              name="countries"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Select Countries</FormLabel>
-                  <FancyMultiSelect
-                    disabled={!editMode}
-                    onChangeSelection={field.onChange}
-                    selectedItems={field.value}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div key={myKey}>
+              <FormField
+                disabled={!editMode}
+                control={form.control}
+                name="countries"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select Countries</FormLabel>
+                    <FancyMultiSelect
+                      disabled={!editMode}
+                      onChangeSelection={field.onChange}
+                      selectedItems={field.value}
+                      form={form}
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="space-y-2">
               <FormLabel>Shipping Methods</FormLabel>
@@ -165,7 +248,7 @@ export default function ShippingZoneForm({ editMode }: { editMode: boolean }) {
                     <FormField
                       disabled={!editMode}
                       control={form.control}
-                      name={`shippingMethods.${index}.name`}
+                      name={`shipping_methods.${index}.name`}
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
@@ -180,7 +263,7 @@ export default function ShippingZoneForm({ editMode }: { editMode: boolean }) {
                       )}
                     />
                   </div>
-                  {index !== 0 && (
+                  {index !== 0 && editMode && (
                     <Button
                       type="button"
                       className="text-destructive col-span-1"
@@ -189,7 +272,7 @@ export default function ShippingZoneForm({ editMode }: { editMode: boolean }) {
                       onClick={() => {
                         if (index !== 0) remove(index);
                       }}>
-                      <Trash size={20}></Trash>
+                      <Trash size={15}></Trash>
                     </Button>
                   )}
                   <div className="col-span-7">
@@ -221,6 +304,30 @@ export default function ShippingZoneForm({ editMode }: { editMode: boolean }) {
                 <Button type="submit" disabled={!editMode}>
                   Save
                 </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      variant={"outline"}
+                      disabled={!editMode}>
+                      Cancel
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Discard the changes?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        All the changed you made to this form will be lost.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogAction>
+                        <Link href={`/shipping/${shippingZone_id}`}>Yes</Link>
+                      </AlertDialogAction>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             )}
           </form>

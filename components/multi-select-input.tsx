@@ -8,6 +8,8 @@ import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import { Command as CommandPrimitive } from "cmdk";
 
 import { useEffect } from "react";
+import { ShippingZoneFormValues } from "./shippingzone-form";
+import { UseFormReturn } from "react-hook-form";
 
 // List of categorized countries
 interface RegionType {
@@ -57,19 +59,26 @@ export function FancyMultiSelect({
   selectedItems,
   onChangeSelection,
   disabled,
+  form,
 }: {
   selectedItems: string[];
   onChangeSelection: (...event: any[]) => void;
   disabled: boolean;
+  form: UseFormReturn<ShippingZoneFormValues>;
 }) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<string[]>([...selectedItems]);
+  // const [selected, setSelected] = React.useState<string[]>(
+  //   form.getValues("countries")
+  // );
   const [inputValue, setInputValue] = React.useState("");
 
   useEffect(() => {
-    onChangeSelection(selected);
-  }, [selected, onChangeSelection]);
+    // onChangeSelection(selected);
+
+    form.setValue("countries", selected);
+  }, [selected]);
 
   const handleUnselect = React.useCallback((country: string) => {
     setSelected((prev) => prev.filter((s) => s !== country));
@@ -133,6 +142,7 @@ export function FancyMultiSelect({
           })}
           {/* Avoid having the "Search" Icon */}
           <CommandPrimitive.Input
+            name="countries"
             disabled={disabled}
             ref={inputRef}
             value={inputValue}
@@ -194,24 +204,6 @@ export function FancyMultiSelect({
                   </CommandGroup>
                 );
               })}
-              {/* {selectables.map((country) => {
-                return (
-                  <CommandItem
-                    disabled={disabled}
-                    key={country}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    onSelect={(value) => {
-                      setInputValue("");
-                      setSelected((prev) => [...prev, country]);
-                    }}
-                    className={"cursor-pointer"}>
-                    {country}
-                  </CommandItem>
-                );
-              })} */}
             </div>
           </div>
         ) : null}

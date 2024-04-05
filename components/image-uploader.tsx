@@ -15,6 +15,7 @@ import { Input } from "./ui/input";
 import Image from "next/image";
 
 import { Progress } from "./ui/progress";
+import { CheckoutLinkFormValues } from "./checkoutlink-form";
 
 const ImageUploader = ({
   form,
@@ -80,8 +81,21 @@ const ImageUploader = ({
               e.stopPropagation();
             }}>
             {image !== "" ? (
-              <Image alt="img" fill={true} sizes="w-full h-full" src={image} />
+              <Image
+                alt="img"
+                fill={true}
+                sizes="w-full h-auto"
+                src={image}
+                priority
+              />
             ) : (
+              //               <Image
+              //     src={img1}
+              //     width="0"
+              //     height="0"
+              //     sizes="100vw"
+              //     className="w-full h-auto"
+              // />
               <div className="flex flex-col items-center justify-center">
                 <CloudUpload size={50} strokeWidth={1} />
                 <p>Upload Image</p>
