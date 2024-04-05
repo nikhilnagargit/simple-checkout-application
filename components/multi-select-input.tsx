@@ -78,7 +78,7 @@ export function FancyMultiSelect({
     // onChangeSelection(selected);
 
     form.setValue("countries", selected);
-  }, [selected]);
+  }, [selected, form]);
 
   const handleUnselect = React.useCallback((country: string) => {
     setSelected((prev) => prev.filter((s) => s !== country));

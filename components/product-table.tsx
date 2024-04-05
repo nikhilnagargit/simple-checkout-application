@@ -53,8 +53,12 @@ export const Columns = ({ handleDelete }: any): ColumnDef<Product>[] => [
       return (
         <Link
           href={"/products/" + product.id}
-          className="flex gap-2 items-center">
-          <Image alt="img" height={44} width={44} src={product.image}></Image>
+          className="flex gap-2 items-center relative">
+          <Image
+            alt="img"
+            height={"40"}
+            width={"40"}
+            src={product.image}></Image>
           <div className="">{product.name}</div>
         </Link>
       );
@@ -149,7 +153,7 @@ export function ProductTable() {
       // setData(() => products);
     }
     fetchProducts();
-  }, []);
+  }, [supabase]);
 
   const table = useReactTable({
     data: productData,

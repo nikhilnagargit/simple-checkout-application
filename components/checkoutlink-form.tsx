@@ -53,10 +53,11 @@ const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
   const [shippingZones, setShippingZones] = useState<ShippingZone[]>([]);
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
   const [image, setImage] = useState<string>("");
+  const [flag, setFlag] = useState<string>("sdf");
   const form = useForm<CheckoutLinkFormValues>({
     resolver: zodResolver(checkoutLinkFormSchema),
     mode: "onSubmit",
-    defaultValues: { quantity: 1, product_id: productId },
+    defaultValues: { quantity: 1, product_id: productId?.toString() },
   });
 
   function onSubmit(data: CheckoutLinkFormValues) {
@@ -84,7 +85,7 @@ const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
         }
       }
     }
-  }, [form.watch("shippingzone_id"), form, shippingZones]);
+  }, [form.watch("shippingzone_id")]);
 
   // change the image, whenever new product is selected in the dropdown
   useEffect(() => {
@@ -95,7 +96,7 @@ const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
       )[0];
       setImage(current_product.image);
     }
-  }, [form.watch("product_id"), products.length]);
+  }, [form.watch("product_id"), flag]);
 
   // fetch the records,when page loads
   useEffect(() => {
@@ -108,6 +109,8 @@ const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
       } else {
         setProducts(() => products);
       }
+      // change the flag so that other useEffect runs, to change the image after dataload
+      setFlag("sdfsd");
     }
 
     // function declaration only

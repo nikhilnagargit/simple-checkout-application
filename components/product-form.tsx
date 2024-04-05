@@ -132,7 +132,7 @@ const ProductForm = ({ editMode, product_id }: ProductFormProps) => {
       console.log("fetching product");
     }
     console.log("effect running");
-  }, []);
+  }, [form, product_id, supabase]);
 
   async function onSubmit(formdata: ProductFormValues) {
     const session = await supabase.auth.getSession();

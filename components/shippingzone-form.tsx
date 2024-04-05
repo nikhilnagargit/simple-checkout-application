@@ -134,7 +134,7 @@ export default function ShippingZoneForm({
       // function call
       fetchShippingZone();
     }
-  }, []);
+  }, [shippingZone_id, form, supabase]);
 
   async function onSubmit(formdata: ShippingZoneFormValues) {
     const session = await supabase.auth.getSession();

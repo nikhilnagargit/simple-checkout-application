@@ -41,7 +41,8 @@ const ImageUploader = ({
 
   useEffect(() => {
     setImage(form.getValues("image"));
-  });
+    console.log("Image state updateds");
+  }, [form.watch("image")]);
 
   const uploadImage = async (e: any) => {
     const formData = new FormData();

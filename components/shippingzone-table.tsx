@@ -138,7 +138,7 @@ export function ShippingZoneTable() {
       }
     }
     fetchShippingZones();
-  }, []);
+  }, [supabase]);
 
   const table = useReactTable({
     data: shippingZoneData,
