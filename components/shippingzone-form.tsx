@@ -138,7 +138,6 @@ export default function ShippingZoneForm({
 
   async function onSubmit(formdata: ShippingZoneFormValues) {
     const session = await supabase.auth.getSession();
-
     // check if user session is there
     if (session) {
       if (editMode && !shippingZone_id) {

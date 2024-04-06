@@ -30,6 +30,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Product } from "./product-table";
 import { ShippingMethod, ShippingZone } from "./shippingzone-table";
 import ImageUploader from "./image-uploader";
+import { useRouter } from "next/navigation";
 const checkoutLinkFormSchema = z.object({
   product_id: z.string(),
   shippingzone_id: z.string(),
@@ -49,6 +50,7 @@ const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
   const { toast } = useToast();
   const [checkoutlink, setCheckoutLink] = useState<string>("");
   const supabase = createClient();
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [shippingZones, setShippingZones] = useState<ShippingZone[]>([]);
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
@@ -60,17 +62,57 @@ const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
     defaultValues: { quantity: 1, product_id: productId?.toString() },
   });
 
-  function onSubmit(data: CheckoutLinkFormValues) {
-    console.log(data);
-    setCheckoutLink("https://checkoutexample.com/ghfro948484/2");
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+  async function onSubmit(formdata: CheckoutLinkFormValues) {
+    const session = await supabase.auth.getSession();
+    // check if user session is there.
+    if (session) {
+      const { data, error }: any = await supabase
+        .from("checkout_links")
+        .insert([{ ...formdata, user_id: session.data.session?.user.id }])
+        .select();
+
+      if (error) {
+        toast({
+          title: "Shipping Zone creation failed",
+          description: (
+            <p className="text-destructive">
+              {error.message + " " + error.code}
+            </p>
+          ),
+        });
+      } else {
+        // set the checkout link state so that link will be shown to user
+        const preparelink =
+          process.env.NEXT_PUBLIC_HOST_PREFIX! +
+          process.env.NEXT_PUBLIC_CHECKOUTLINK_ROUTE! +
+          "/" +
+          data[0].id +
+          "?quantity=" +
+          data[0].quantity;
+
+        setCheckoutLink(preparelink);
+
+        toast({
+          title: "Checkout Link Generated.",
+          description: (
+            <p className="text-green-700">{"Copy and Share the link"}</p>
+          ),
+        });
+        // go to the previous page
+        // router.back();
+      }
+    }
+
+    // toast({
+    //   title: "You submitted the following values:",
+    //   description: (
+    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+    //       <code className="text-white">
+    //         {JSON.stringify(formdata, null, 2)}
+    //       </code>
+    //     </pre>
+    //   ),
+    // });
   }
   // change the options for shipping methods dropdown, based on the shipping zone dropdown value changes
   useEffect(() => {

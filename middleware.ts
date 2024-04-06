@@ -6,7 +6,9 @@ import next from 'next';
 export async function middleware(request: NextRequest,response:NextResponse) {
   
   // public routes will be accessible without authentication
-  if(request.nextUrl.pathname==="/error" || request.nextUrl.pathname==="/register" || request.nextUrl.pathname==="/login" || request.nextUrl.pathname==="/auth/confirm"){
+  // console.log("/"+process.env.NEXT_PUBLIC_CHECKOUTLINK_ROUTE);
+  // console.log(request.nextUrl.pathname);
+  if(request.nextUrl.pathname.startsWith("/"+process.env.NEXT_PUBLIC_CHECKOUTLINK_ROUTE)||request.nextUrl.pathname==="/error" || request.nextUrl.pathname==="/register" || request.nextUrl.pathname==="/login" || request.nextUrl.pathname==="/auth/confirm"){
     let response = NextResponse.next({
       request: {
         headers: request.headers,
