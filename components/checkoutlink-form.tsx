@@ -91,10 +91,12 @@ const CheckoutLinkForm = ({ editMode, productId }: CheckoutLinkFormProps) => {
   useEffect(() => {
     if (products.length !== 0) {
       const id = form.getValues("product_id");
-      const current_product = products.filter(
-        (p, idx) => p.id.toString() === id
-      )[0];
-      setImage(current_product.image);
+      if (id) {
+        const current_product: Product = products.filter(
+          (p, idx) => p.id.toString() === id
+        )[0];
+        setImage(current_product.image);
+      }
     }
   }, [form.watch("product_id"), flag]);
 
