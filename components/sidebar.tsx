@@ -2,7 +2,14 @@
 import React from "react";
 import Image from "next/image";
 import { Button } from "./ui/button";
-import { Home, Plane, Settings, Shirt, ShoppingCart } from "lucide-react";
+import {
+  Home,
+  Landmark,
+  Plane,
+  Settings,
+  Shirt,
+  ShoppingCart,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
@@ -26,6 +33,11 @@ const sidebarItems = [
     label: "Checkout",
     href: "/checkout",
     icon: ShoppingCart,
+  },
+  {
+    label: "Accounts",
+    href: "/accounts",
+    icon: Landmark,
   },
   {
     label: "Settings",

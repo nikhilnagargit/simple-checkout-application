@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const page = async () => {
+const page = () => {
   return (
     <div className="flex flex-col space-y-4">
       <div className="flex items-center justify-between">
