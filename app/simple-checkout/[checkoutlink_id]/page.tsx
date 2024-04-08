@@ -6,23 +6,24 @@ import PriceWithTooltip from "./(components)/price-with-tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 
 // FOOTER_LINKS
-export const FOOTER_LINKS = [
+const FOOTER_LINKS = [
   {
     key: 1,
-    href: "",
+    href: "/dashboard",
     title: "Refund policy",
   },
   {
     key: 2,
-    href: "",
+    href: "/dashboard",
     title: "Shipping policy",
   },
   {
     key: 3,
-    href: "",
+    href: "/dashboard",
     title: "Terms of service",
   },
 ];
+
 const page = ({ params }: { params: { checkoutlink_id: string } }) => {
   return (
     <div className="bg-white">
@@ -89,7 +90,7 @@ const page = ({ params }: { params: { checkoutlink_id: string } }) => {
               <div className="flex items-center gap-4">
                 <div className="relative w-20 h-20 flex items-center justify-center bg-white border rounded-sm">
                   <Image
-                    src="/jordan.png"
+                    src="/images/jordan.png"
                     alt="productImg"
                     width={60}
                     height={10}
