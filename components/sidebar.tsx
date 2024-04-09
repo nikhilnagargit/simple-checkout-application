@@ -45,10 +45,10 @@ const sidebarItems = [
     icon: Settings,
   },
 ];
-let count = 0;
+
 function Sidebar() {
   const pathname = usePathname();
-  console.log("sidebar rendered", count++);
+
   return (
     <aside className="w-[270px] max-w-xs h-screen fixed left-0 top-0 z-40 border-r">
       <div className="h-full px-4 py-4">
