@@ -131,6 +131,7 @@ export function ShippingZoneTable() {
       const { data: shipping_zones, error } = await supabase
         .from("shipping_zones")
         .select("*");
+
       if (error) {
         console.log(error);
       } else {

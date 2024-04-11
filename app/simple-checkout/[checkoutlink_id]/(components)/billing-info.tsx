@@ -12,7 +12,19 @@ import Image from "next/image";
 
 import { CircleMinus, CirclePlus } from "lucide-react";
 import PriceWithTooltip from "./price-with-tooltip";
-const BillingInfo = () => {
+import { UseFormReturn } from "react-hook-form";
+
+import { Product } from "@/components/product-table";
+import { z } from "zod";
+const BillingInfo = ({
+  form,
+  product,
+  loading,
+}: {
+  form: any;
+  product?: Product;
+  loading: boolean;
+}) => {
   return (
     <Card className="shadow-md">
       <CardHeader>
@@ -23,10 +35,21 @@ const BillingInfo = () => {
 
         <div className="w-full flex flex-col gap-3 mt-2">
           {/* Subtotal */}
-          <PriceWithTooltip label="Subtotal" amount="$120.00" />
+          {product && (
+            <PriceWithTooltip
+              label="Subtotal"
+              amount={
+                "$ " + (product.price * form.watch("quantity")).toString()
+              }
+            />
+          )}
 
           {/* Shipping */}
-          <PriceWithTooltip label="Shipping" amount="Free" />
+          <PriceWithTooltip
+            label="Shipping"
+            amount="Free"
+            tooltipContent="shipping cost may vary depending on product weight and shipping zone."
+          />
 
           {/* Estimated taxes */}
           <PriceWithTooltip
@@ -43,7 +66,7 @@ const BillingInfo = () => {
               Total
             </h2>
             <h3 className="text-black text-lg font-semibold text-right">
-              $125.00
+              $ {product ? product.price * form.watch("quantity") : 0}
             </h3>
           </div>
         </div>

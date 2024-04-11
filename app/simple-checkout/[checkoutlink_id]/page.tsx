@@ -11,50 +11,114 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
+import { createClient } from "@/utils/supabase/client";
+import { useEffect, useState } from "react";
+import { toast } from "@/components/ui/use-toast";
+import { Product } from "@/components/product-table";
 
-export const formSchema = z.object({
-  fName: z.string().min(1, {
-    message: "First Name is required",
-  }),
-  lName: z.string().min(1, {
-    message: "Last Name is required",
-  }),
+export default function Page({ params: { checkoutlink_id } }: any) {
+  const [product, setProduct] = useState<Product | undefined>();
+  const [loading, setLoading] = useState<boolean>(true);
+  const checkoutFormSchema = z.object({
+    fName: z.string().min(1, {
+      message: "First Name is required",
+    }),
+    lName: z.string().min(1, {
+      message: "Last Name is required",
+    }),
 
-  address: z.string().min(1, {
-    message: "Address is required",
-  }),
-  city: z.string().min(1, {
-    message: "City is required",
-  }),
+    address: z.string().min(1, {
+      message: "Address is required",
+    }),
+    city: z.string().min(1, {
+      message: "City is required",
+    }),
 
-  postal: z.string().min(1, {
-    message: "Postal is required",
-  }),
-  phone: z.string().min(4).max(15),
-  email: z.string().email(),
-  quantity: z.number().positive(),
-});
+    postal: z.string().min(1, {
+      message: "Postal is required",
+    }),
+    phone: z.string().min(4).max(15),
+    email: z.string().email(),
+    quantity: z.number().positive(),
+    paymentMethod: z.string(),
+  });
 
-const page = ({ params }: { params: { checkoutlink_id: string } }) => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof checkoutFormSchema>>({
+    resolver: zodResolver(checkoutFormSchema),
     defaultValues: {
       fName: "",
       lName: "",
-
       address: "",
       city: "",
       postal: "",
       phone: "",
       email: "",
-      quantity: 2,
+      quantity: 1,
     },
     mode: "onSubmit",
   });
 
-  const isLoading = form.formState.isSubmitting;
+  const supabase = createClient();
+  // side effects
+  useEffect(() => {
+    // function declaration only
+    async function fetchCheckoutLinkDetails() {
+      setLoading(true);
+      let { data: checkoutlinks, error } = await supabase
+        .from("checkout_links")
+        .select("*")
+        .eq("id", checkoutlink_id);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+      if (error) {
+        toast({
+          title: "Error Occured.",
+          description: (
+            <p className="text-destructive">
+              {error.message + " " + error.code}
+            </p>
+          ),
+        });
+        return;
+      }
+      // if no errrs then fetch product and shippingzone details
+      if (checkoutlinks && checkoutlinks[0].length !== 0) {
+        const product_id = checkoutlinks[0].product_id;
+        const user_id = checkoutlinks[0].user_id;
+        const shippingZone_id = checkoutlinks[0].shippingzone_id;
+        const shippingmethod_name = checkoutlinks[0].shippingmethod_name;
+        const quantity = checkoutlinks[0].quantity;
+
+        // set the quantity
+        form.setValue("quantity", quantity);
+        // fetch product details
+        let { data: products, error } = await supabase
+          .from("products")
+          .select("*")
+          .eq("id", product_id);
+
+        if (error) {
+          toast({
+            title: "Error Occured.",
+            description: (
+              <p className="text-destructive">
+                {error.message + " " + error.code}
+              </p>
+            ),
+          });
+          return;
+        }
+
+        if (products) {
+          setProduct(products[0]);
+        }
+      }
+      setLoading(false);
+    }
+    // call the function
+    fetchCheckoutLinkDetails();
+  }, []);
+
+  const onSubmit = async (values: z.infer<typeof checkoutFormSchema>) => {
     console.log(values);
   };
 
@@ -63,15 +127,17 @@ const page = ({ params }: { params: { checkoutlink_id: string } }) => {
       <div className="flex flex-col gap-4 md:max-w-md w-full items-center p-4">
         <Header />
         {/* product card migth cause slowneess because it rendered image again and again when form rerenderes. */}
-        <ProductCard form={form} />
+        <ProductCard form={form} product={product} loading={loading} />
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(onSubmit, (err) => {
+              console.log(err);
+            })}
             className="flex flex-col gap-4">
             <AddressForm form={form} />
             {/* Payment  */}
-            <Payment />
-            <BillingInfo />
+            <Payment form={form} />
+            <BillingInfo form={form} product={product} loading={loading} />
             <Button type="submit" size={"sm"} className="w-full">
               Checkout
             </Button>
@@ -81,6 +147,4 @@ const page = ({ params }: { params: { checkoutlink_id: string } }) => {
       </div>
     </div>
   );
-};
-
-export default page;
+}

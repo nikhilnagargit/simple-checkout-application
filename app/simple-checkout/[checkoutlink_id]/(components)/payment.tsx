@@ -11,15 +11,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const Payment = () => {
+const Payment = ({ form }: any) => {
   const [selectedValue, setSelectedValue] = useState("creditcard");
 
   const handleChange = (value: any) => {
     setSelectedValue(value);
+    if (form) form.setValue("paymentMethod", value);
   };
 
   return (
-    <Card className=" shadow-md">
+    <Card className="shadow-md">
       <CardHeader>
         <CardTitle>Payment Mode</CardTitle>
         <CardDescription>

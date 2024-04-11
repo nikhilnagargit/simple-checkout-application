@@ -12,37 +12,62 @@ import Image from "next/image";
 
 import { CircleMinus, CirclePlus } from "lucide-react";
 import { z } from "zod";
-import { formSchema } from "../page";
-import { UseFormReturn } from "react-hook-form";
 
+import { UseFormReturn } from "react-hook-form";
+import { Product } from "@/components/product-table";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// helper component
+function SkeletonCard() {
+  return (
+    <div className="flex flex-col space-y-3">
+      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-[250px]" />
+        <Skeleton className="h-4 w-[200px]" />
+      </div>
+    </div>
+  );
+}
+
+// main component
 const ProductCard = ({
   form,
+  product,
+  loading,
 }: {
-  form: UseFormReturn<z.infer<typeof formSchema>>;
+  form: any;
+  product?: Product;
+  loading: boolean;
 }) => {
+  if (loading === true) {
+    return <SkeletonCard />;
+  }
+
   return (
-    <Card className="shadow-md">
+    <Card className="shadow-md w-full">
       <CardHeader>
         <div className="flex justify-between">
-          <CardTitle>Nike Airforce</CardTitle>
-          <CardTitle>{form.watch("quantity")} x $345</CardTitle>
+          <CardTitle>{product?.name}</CardTitle>
+          <CardTitle>
+            {form.watch("quantity")} x ${product?.price}
+          </CardTitle>
         </div>
-        <CardDescription>
-          Deploy your new project in one-click. Get the best of the class in no
-          time.
-        </CardDescription>
+        <CardDescription>{product?.description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-center p-4">
+        <div className="flex items-center justify-center">
           <Image
-            src="/images/jordan.png"
+            src={product ? product.image : "/images/jordan.png"}
             alt="productImg"
             width={100}
             height={100}
-            className="w-[200px] h-auto"
+            className="w-[350px] h-auto"
           />
         </div>
-        <div className=" bg-slate-100 rounded-full flex flex-row items-center justify-between py-3 px-5">
+      </CardContent>
+      <CardFooter>
+        <div className=" bg-slate-100 w-full rounded-full flex flex-row items-center justify-between py-3 px-5">
           <p>Quantity</p>
           <div className="flex flex-row items-center gap-3">
             <div className=" select-none">
@@ -70,7 +95,7 @@ const ProductCard = ({
             </div>
           </div>
         </div>
-      </CardContent>
+      </CardFooter>
     </Card>
   );
 };
