@@ -15,10 +15,13 @@ import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { Product } from "@/components/product-table";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Page({ params: { checkoutlink_id } }: any) {
   const [product, setProduct] = useState<Product | undefined>();
   const [loading, setLoading] = useState<boolean>(true);
+  const router = useRouter();
   const checkoutFormSchema = z.object({
     fName: z.string().min(1, {
       message: "First Name is required",
@@ -46,14 +49,14 @@ export default function Page({ params: { checkoutlink_id } }: any) {
   const form = useForm<z.infer<typeof checkoutFormSchema>>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: {
-      fName: "",
-      lName: "",
-      address: "",
-      city: "",
-      postal: "",
-      phone: "",
-      email: "",
-      quantity: 1,
+      fName: "Nikhil",
+      lName: "Nagar",
+      address: "Sample test",
+      city: "Test",
+      postal: "322323",
+      phone: "+91393939393",
+      email: "abcd@gmail.com",
+      quantity: 2,
     },
     mode: "onSubmit",
   });
@@ -118,8 +121,19 @@ export default function Page({ params: { checkoutlink_id } }: any) {
     fetchCheckoutLinkDetails();
   }, []);
 
+  // handle the submisison of checkout form and redirect to stripe chekcout page
   const onSubmit = async (values: z.infer<typeof checkoutFormSchema>) => {
-    console.log(values);
+    try {
+      const response = await axios.post("/api/stripe/checkout", {
+        ...values,
+        product: product,
+      });
+      console.log(response);
+      router.replace(response.data.redirect_url);
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+    }
   };
 
   return (

@@ -8,7 +8,9 @@ export async function middleware(request: NextRequest,response:NextResponse) {
   // public routes will be accessible without authentication
   // console.log("/"+process.env.NEXT_PUBLIC_CHECKOUTLINK_ROUTE);
   // console.log(request.nextUrl.pathname);
-  if(request.nextUrl.pathname.startsWith("/"+process.env.NEXT_PUBLIC_CHECKOUTLINK_ROUTE)||request.nextUrl.pathname==="/error" || request.nextUrl.pathname==="/register" || request.nextUrl.pathname==="/login" || request.nextUrl.pathname==="/auth/confirm"){
+  if(request.nextUrl.pathname.startsWith("/"+process.env.NEXT_PUBLIC_CHECKOUTLINK_ROUTE)||request.nextUrl.pathname.startsWith("/api")||request.nextUrl.pathname==="/error" || request.nextUrl.pathname==="/register" || request.nextUrl.pathname==="/login" || request.nextUrl.pathname==="/auth/confirm"){
+    const headers = request.headers;
+
     let response = NextResponse.next({
       request: {
         headers: request.headers,
