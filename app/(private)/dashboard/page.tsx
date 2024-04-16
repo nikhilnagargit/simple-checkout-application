@@ -124,10 +124,10 @@ const page = () => {
               </CardContent>
             </Card>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
+            <Card className="col-span-4">
               <CardHeader>
-                <CardTitle>Recent Checkouts</CardTitle>
+                <CardTitle>Recent Links</CardTitle>
                 <CardDescription>
                   You made 265 sales this month.Table will be here.
                 </CardDescription>
@@ -136,7 +136,7 @@ const page = () => {
             </Card>
             <Card className="col-span-4">
               <CardHeader>
-                <CardTitle>Recent Checkouts</CardTitle>
+                <CardTitle>Recent links</CardTitle>
                 <CardDescription>
                   You made 265 sales this month.
                 </CardDescription>

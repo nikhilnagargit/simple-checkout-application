@@ -8,6 +8,7 @@ import {
   Plane,
   Settings,
   Shirt,
+  ShoppingBag,
   ShoppingCart,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -33,6 +34,11 @@ const sidebarItems = [
     label: "Checkout",
     href: "/checkout",
     icon: ShoppingCart,
+  },
+  {
+    label: "Orders",
+    href: "/orders",
+    icon: ShoppingBag,
   },
   {
     label: "Accounts",

@@ -19,11 +19,22 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { createClient } from "@/utils/supabase/client";
+import { useEffect, useState } from "react";
 
-async function Navbar() {
+function Navbar() {
   const supabase = createClient();
-  const session = await supabase.auth.getSession();
-  console.log("navbar rendered");
+  const [session, setSession] = useState<any>();
+
+  useEffect(() => {
+    async function getSession() {
+      const sess = await supabase.auth.getSession();
+      setSession(sess);
+    }
+
+    getSession();
+  }, []);
+
+  console.log("navbar rendered from cilent side");
   return (
     <div className="flex h-12 items-center justify-end px-8 border-b gap-6 z-40 ml-[270px] bg-gradient-to-r from-slate-50 via-blue-100 to-slate-50">
       <Popover>
@@ -59,7 +70,7 @@ async function Navbar() {
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">Nikhil</p>
               <p className="text-xs leading-none text-muted-foreground">
-                {session.data.session?.user.email}
+                {session?.data.session?.user.email}
               </p>
             </div>
           </DropdownMenuLabel>

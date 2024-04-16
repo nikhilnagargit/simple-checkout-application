@@ -17,10 +17,13 @@ import { toast } from "@/components/ui/use-toast";
 import { Product } from "@/components/product-table";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { LoaderCircle } from "lucide-react";
 
 export default function Page({ params: { checkoutlink_id } }: any) {
   const [product, setProduct] = useState<Product | undefined>();
   const [loading, setLoading] = useState<boolean>(true);
+  const [nextPageLoader, setNextPageLoader] = useState<boolean>(false);
+
   const router = useRouter();
   const checkoutFormSchema = z.object({
     fName: z.string().min(1, {
@@ -124,15 +127,18 @@ export default function Page({ params: { checkoutlink_id } }: any) {
   // handle the submisison of checkout form and redirect to stripe chekcout page
   const onSubmit = async (values: z.infer<typeof checkoutFormSchema>) => {
     try {
+      setNextPageLoader(true);
       const response = await axios.post("/api/stripe/checkout", {
         ...values,
         product: product,
       });
       console.log(response);
+      setNextPageLoader(false);
       router.replace(response.data.redirect_url);
     } catch (err) {
       console.log(err);
       setLoading(false);
+      setNextPageLoader(false);
     }
   };
 
@@ -152,8 +158,15 @@ export default function Page({ params: { checkoutlink_id } }: any) {
             {/* Payment  */}
             <Payment form={form} />
             <BillingInfo form={form} product={product} loading={loading} />
-            <Button type="submit" size={"sm"} className="w-full">
-              Checkout
+            <Button
+              type="submit"
+              size={"sm"}
+              className="w-full"
+              disabled={nextPageLoader}>
+              Checkout{" "}
+              {nextPageLoader && (
+                <LoaderCircle className="animate-spin" size={15}></LoaderCircle>
+              )}
             </Button>
           </form>
         </Form>
