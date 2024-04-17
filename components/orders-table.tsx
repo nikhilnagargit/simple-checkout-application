@@ -1,12 +1,24 @@
 "use client";
 
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
   getPaginationRowModel,
-  RowSelection,
 } from "@tanstack/react-table";
 
 import {
@@ -20,14 +32,11 @@ import {
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-
-import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { toast } from "./ui/use-toast";
-import ProductTableRowActions from "./product-table-row-actions";
 import { Product } from "./product-table";
+import OrderDetails from "./order-details";
 
 // define the types
 export type Order = {
@@ -57,11 +66,23 @@ export const Columns = (): ColumnDef<Order>[] => [
     cell: ({ row }) => {
       const order = row.original;
       return (
-        <Link
-          href={"/order/" + order.id}
-          className="flex gap-2 items-center relative">
-          {order.id}
-        </Link>
+        <Dialog>
+          <DialogTrigger>#{order.id}</DialogTrigger>
+          <DialogContent className="max-w-[80%]">
+            <DialogHeader>
+              <DialogTitle>Order Details</DialogTitle>
+              <DialogDescription>
+                Find the details from order.
+              </DialogDescription>
+            </DialogHeader>
+            <OrderDetails order_data={row.original} />
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button">Close</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       );
     },
   },
@@ -90,8 +111,8 @@ export const Columns = (): ColumnDef<Order>[] => [
             alt="img"
             height={"40"}
             width={"40"}
-            src={order.product.image}></Image>
-          <div className="">{order.product.name}</div>
+            src={order.product?.image}></Image>
+          <div className="">{order.product?.name}</div>
         </div>
       );
     },

@@ -56,15 +56,16 @@ export async function POST(request: NextRequest) {
     case "checkout.session.completed":
     {
       
-      // update payment_status of order_id that was passed in checkout session during creation as client_reference_id
+      // update payment_status and stripe_checkout_session_id of the  order_id that was passed in checkout session during creation as client_reference_id
 
-      const reference_order_id = parseInt(event.data.object.client_reference_id!);
+      const reference_order_id = event.data.object.client_reference_id;
 
       const order_update_response = await supabase
                   .from('orders')
                   .update([
                     { 
-                  payment_status:event.data.object.payment_status
+                  payment_status:event.data.object.payment_status,
+                  stripe_checkout_session_id:event.data.object.id
                   }
                   ]).
                   eq("id",reference_order_id).select();

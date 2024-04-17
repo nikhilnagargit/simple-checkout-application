@@ -122,6 +122,7 @@ const ProductForm = ({ editMode, product_id }: ProductFormProps) => {
           form.setValue("image", products[0].image);
           form.setValue("price", products[0].price);
           form.setValue("category", products[0].category);
+          form.setValue("quantity", products[0].quantity);
         }
       }
     }
