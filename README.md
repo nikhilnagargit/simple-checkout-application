@@ -3,7 +3,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 https://www.simplecheckout.co/
 ## Preview - 
 
-![simplecheckoutgif](https://github.com/nikhilnagargit/simple-checkout-application/assets/44896376/6ce29970-507b-47be-b8c7-86d427b52520)
+![simplecheckoutgiffinal](https://github.com/nikhilnagargit/simple-checkout-application/assets/44896376/957f7a1b-0751-4cbe-b8be-be159e560207)
 
 
 ## Getting Started
